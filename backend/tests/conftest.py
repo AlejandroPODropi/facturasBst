@@ -82,3 +82,18 @@ def created_invoice(client, created_user, test_invoice):
     response = client.post("/api/v1/invoices/upload", data=invoice_data)
     assert response.status_code == 201
     return response.json()
+
+
+def create_test_user(db_session):
+    """Crear usuario de prueba en la base de datos."""
+    from src.models import User, UserRole
+    
+    user = User(
+        name="Test User",
+        email="test@example.com",
+        role=UserRole.COLLABORATOR
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user

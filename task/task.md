@@ -97,10 +97,70 @@
 
 ---
 
+## 📌 Fase 2 - En Desarrollo
+
+### ✅ **Integración con Gmail API** - COMPLETADO
+* **Backend:**
+  - Servicio de Gmail API (`gmail_service.py`)
+  - Router de endpoints (`gmail.py`)
+  - Procesador de correos electrónicos
+  - Extracción automática de datos de facturas
+  - Tests unitarios completos
+* **Frontend:**
+  - Componente de integración Gmail (`GmailIntegration.tsx`)
+  - Dashboard con estadísticas de Gmail
+  - Procesamiento automático de facturas
+* **Funcionalidades:**
+  - Autenticación con Gmail API
+  - Búsqueda de correos con adjuntos
+  - Detección automática de facturas
+  - Extracción de datos (proveedor, monto, fecha)
+  - Creación automática de facturas
+  - Estadísticas en tiempo real
+
+### ✅ **OCR para Facturas Físicas - COMPLETADO**
+* **Backend:**
+  - Servicio OCR completo (`ocr_service.py`)
+  - Router de endpoints (`ocr.py`)
+  - Procesamiento de imágenes y PDFs
+  - Extracción automática de datos (monto, proveedor, fecha, número)
+  - Cálculo de nivel de confianza
+  - Tests unitarios completos
+  - Patrones de extracción mejorados
+* **Frontend:**
+  - Componente de procesamiento OCR (`OCRProcessor.tsx`)
+  - Página dedicada para OCR (`OCRProcessing.tsx`)
+  - Interfaz intuitiva para subir y procesar facturas
+  - Edición de datos extraídos
+  - Validación y creación automática de facturas
+  - Componente reactivado y funcional
+* **Funcionalidades:**
+  - Soporte para múltiples formatos (JPG, PNG, PDF, TIFF, BMP)
+  - Extracción automática con Tesseract OCR
+  - Nivel de confianza para validar extracción
+  - Edición manual de datos extraídos
+  - Creación automática de facturas
+  - Integración completa con el sistema existente
+  - Patrones de extracción optimizados para facturas en español
+
+## 📌 Mejoras Recientes (Diciembre 2024)
+
+### ✅ **Reactivar Funcionalidad OCR**
+* **Problema resuelto:**
+  - Componente OCRProcessor estaba desactivado por problemas de TypeScript
+  - Router Gmail estaba comentado en main.py
+* **Soluciones implementadas:**
+  - Reactivado componente OCRProcessor en OCRProcessing.tsx
+  - Descomentado router Gmail en main.py
+  - Arreglados patrones de extracción OCR
+  - Mejorada validación de datos extraídos
+* **Resultado:**
+  - Funcionalidad OCR completamente operativa
+  - Integración Gmail activa
+  - Sistema listo para procesamiento de facturas físicas
+
 ## 📌 Backlog (próximas fases)
 
-* **Integración correo electrónico:** recepción automática de facturas electrónicas desde Gmail/Outlook.
-* **OCR:** extracción de datos de facturas físicas (PDF/JPG).
 * **Dashboard web:** para visualizar facturas pendientes, aprobadas, rechazadas.
 * **Clasificación automática:** categorización de gastos con IA.
 * **Integración contable:** conexión con software de contabilidad.

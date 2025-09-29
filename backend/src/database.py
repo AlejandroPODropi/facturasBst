@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     """Configuración de la aplicación desde variables de entorno."""
     
     db_url: str = os.getenv("DB_URL", "postgresql://username:password@localhost:5432/facturas_boosting")
+    redis_url: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
     secret_key: str = os.getenv("SECRET_KEY", "your-secret-key-here")
     algorithm: str = os.getenv("ALGORITHM", "HS256")
     access_token_expire_minutes: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))

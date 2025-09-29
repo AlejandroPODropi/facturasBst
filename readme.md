@@ -2,7 +2,7 @@
 
 Sistema completo de gestión de facturas desarrollado para Boosting. Incluye backend FastAPI con PostgreSQL, frontend React + TypeScript, sistema de validación con visualizador de archivos, gestión de usuarios y filtros avanzados.
 
-## 🎯 **¡MVP Fase 1 COMPLETADO AL 100%! 🎉**
+## 🎯 **¡MVP Fase 1 y Fase 2 COMPLETADOS AL 100%! 🎉**
 
 ---
 
@@ -37,17 +37,31 @@ Sistema completo de gestión de facturas desarrollado para Boosting. Incluye bac
 
 ## 🚀 Instalación y Configuración
 
-### **Prerrequisitos**
+### **📚 Documentación Completa**
+
+- **[Índice de Documentación](DOCUMENTACION.md)** - Guía completa de toda la documentación disponible
+- **[Guía Completa de Instalación](INSTALACION.md)** - Instalación paso a paso del sistema completo
+- **[Configuración Gmail API](CONFIGURACION_GMAIL.md)** - Configuración detallada para procesamiento de facturas electrónicas
+- **[Configuración OCR](CONFIGURACION_OCR.md)** - Configuración detallada para procesamiento de facturas físicas
+- **[Solución de Problemas](TROUBLESHOOTING.md)** - Guía completa para resolver problemas comunes
+- **[Despliegue en Producción](DESPLIEGUE_PRODUCCION.md)** - Guía completa para desplegar en producción
+- **[Despliegue en GCP](DESPLIEGUE_GCP.md)** - Guía específica para Google Cloud Platform
+
+### **Instalación Rápida**
+
+#### **Prerrequisitos**
 - Python 3.8+
 - Node.js 16+
 - PostgreSQL 12+
+- Tesseract OCR
 
-### **Backend**
+#### **Backend**
 ```bash
 cd backend
 python3 -m venv venv
 source venv/bin/activate  # En Windows: venv\Scripts\activate
 pip install -r requirements.txt
+pip install Pillow pytesseract PyMuPDF  # Dependencias OCR
 
 # Configurar variables de entorno
 cp .env.example .env
@@ -60,14 +74,14 @@ alembic upgrade head
 uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### **Frontend**
+#### **Frontend**
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-### **Base de Datos**
+#### **Base de Datos**
 ```sql
 -- Crear base de datos
 CREATE DATABASE facturas_boosting;
@@ -76,6 +90,51 @@ CREATE DATABASE facturas_boosting;
 CREATE USER boosting_user WITH PASSWORD 'tu_password';
 GRANT ALL PRIVILEGES ON DATABASE facturas_boosting TO boosting_user;
 ```
+
+### **Despliegue Rápido con Docker**
+
+```bash
+# Clonar repositorio
+git clone <repository-url>
+cd facturasBst
+
+# Configurar variables de entorno
+cp env.example .env
+# Editar .env con tus configuraciones
+
+# Desplegar con Docker
+./scripts/deploy.sh
+
+# Verificar salud del sistema
+./scripts/health-check.sh
+```
+
+**Acceso al sistema:**
+- **Frontend:** http://localhost
+- **Backend API:** http://localhost:8000
+- **Documentación API:** http://localhost:8000/docs
+
+### **Despliegue Rápido en Google Cloud Platform**
+
+```bash
+# Instalar Google Cloud CLI
+curl https://sdk.cloud.google.com | bash
+
+# Autenticar y configurar proyecto
+gcloud auth login
+gcloud config set project facturasBst
+
+# Desplegar en GCP
+./scripts/deploy-gcp.sh
+
+# Verificar despliegue
+./scripts/verify-gcp.sh
+```
+
+**Acceso al sistema en GCP:**
+- **Backend API:** https://facturas-backend-xxxxx-uc.a.run.app
+- **Frontend:** https://storage.googleapis.com/facturas-frontend-facturasBst/
+- **Documentación API:** https://facturas-backend-xxxxx-uc.a.run.app/docs
 
 ---
 
@@ -103,13 +162,57 @@ GRANT ALL PRIVILEGES ON DATABASE facturas_boosting TO boosting_user;
 - [x] Documentación completa
 - [x] Código en GitHub
 
-### 📋 **Próximas Funcionalidades (Fase 2)**
-- [ ] Integración con correo electrónico
-- [ ] OCR para facturas físicas
-- [ ] Dashboard avanzado con gráficos
-- [ ] Autenticación y autorización
+### ✅ **Completado (Fase 2) - 100% 🎉**
+
+#### ✅ **Integración con Gmail API - COMPLETADO**
+- [x] **Autenticación con Gmail API** (OAuth 2.0)
+- [x] **Procesamiento automático de correos** electrónicos
+- [x] **Detección automática de facturas** por palabras clave
+- [x] **Extracción de datos** (proveedor, monto, fecha, descripción)
+- [x] **Creación automática de facturas** en el sistema
+- [x] **Estadísticas de Gmail** en tiempo real
+- [x] **Dashboard integrado** con funcionalidades de Gmail
+- [x] **Tests unitarios** para integración Gmail
+- [x] **Documentación de configuración** completa
+
+#### ✅ **OCR para Facturas Físicas - COMPLETADO**
+- [x] **Procesamiento OCR** con Tesseract para imágenes y PDFs
+- [x] **Extracción automática** de datos (monto, proveedor, fecha, número)
+- [x] **Nivel de confianza** para validar la extracción
+- [x] **Edición manual** de datos extraídos
+- [x] **Creación automática** de facturas desde OCR
+- [x] **Interfaz intuitiva** para procesamiento de facturas
+- [x] **Soporte múltiples formatos** (JPG, PNG, PDF, TIFF, BMP)
+- [x] **Tests unitarios** completos para funcionalidad OCR
+- [x] **Componente reactivado** y completamente funcional
+- [x] **Patrones de extracción** optimizados para facturas en español
+
+#### ✅ **Sistema de CI/CD - COMPLETADO**
+- [x] **GitHub Actions** para CI/CD automático
+- [x] **Despliegue automático** a Google Cloud Platform
+- [x] **Tests automáticos** y análisis de código
+- [x] **Dependabot** para actualización de dependencias
+- [x] **Documentación completa** de instalación y despliegue
+
+### 🆕 **Mejoras Recientes (Diciembre 2024)**
+
+#### ✅ **Reactivar Funcionalidad OCR**
+- **Problema resuelto:** Componente OCRProcessor desactivado por problemas de TypeScript
+- **Soluciones implementadas:**
+  - Reactivado componente OCRProcessor en OCRProcessing.tsx
+  - Descomentado router Gmail en main.py
+  - Arreglados patrones de extracción OCR
+  - Mejorada validación de datos extraídos
+- **Resultado:** Funcionalidad OCR completamente operativa
+
+### 📋 **Próximas Funcionalidades (Fase 3)**
+- [ ] **Procesamiento asíncrono** con Celery
+- [ ] **Notificaciones automáticas** por email
+- [ ] Autenticación y autorización avanzada
 - [ ] Notificaciones push
 - [ ] App móvil (React Native)
+- [ ] Integración con software contable
+- [ ] Análisis predictivo con IA
 
 ---
 
@@ -122,6 +225,9 @@ GRANT ALL PRIVILEGES ON DATABASE facturas_boosting TO boosting_user;
 - **Alembic** - Migraciones de base de datos
 - **Pydantic** - Validación de datos
 - **pytest** - Framework de testing
+- **Tesseract OCR** - Reconocimiento óptico de caracteres
+- **PyMuPDF** - Procesamiento de PDFs
+- **Pillow** - Procesamiento de imágenes
 
 ### **Frontend**
 - **React 18** - Biblioteca de UI
@@ -182,6 +288,19 @@ npm test
 
 ---
 
+## 🔄 **CI/CD Automático**
+
+El proyecto incluye configuración completa de CI/CD con GitHub Actions:
+
+- **CI**: Tests automáticos, linting, análisis de seguridad
+- **CD**: Despliegue automático a GCP desde la rama `main`
+- **Dependabot**: Actualización automática de dependencias
+- **CodeQL**: Análisis estático de código
+
+Ver [CICD_README.md](CICD_README.md) para configuración detallada.
+
+---
+
 ## 📚 **Documentación API**
 
 Una vez que el servidor esté ejecutándose, puedes acceder a:
@@ -220,4 +339,4 @@ Para preguntas o soporte, contacta al equipo de desarrollo.
 
 ---
 
-**¡Sistema de Control de Facturas para Boosting - MVP Fase 1 Completado! 🎉**
+**¡Sistema de Control de Facturas para Boosting - MVP Fase 1 y Fase 2 Completados! 🎉**
