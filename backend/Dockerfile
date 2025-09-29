@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y \
     libfontconfig1 \
     libgl1 \
     libglu1-mesa \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Establecer directorio de trabajo
