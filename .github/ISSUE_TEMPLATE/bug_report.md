@@ -44,3 +44,4 @@ Pega los logs aquí
 - [ ] He incluido todos los pasos para reproducir el problema
 - [ ] He incluido información del sistema
 - [ ] He incluido logs de error si están disponibles
+

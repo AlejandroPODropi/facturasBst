@@ -38,3 +38,4 @@ Cualquier documentación adicional que pueda ser útil.
 - [ ] He incluido una solución propuesta
 - [ ] He incluido criterios de aceptación
 - [ ] He considerado alternativas
+

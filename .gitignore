@@ -1,6 +1,7 @@
 # Credenciales y archivos sensibles
 backend/credentials*.json
 client_secret_*.json
+gcp-key.json
 *.pem
 *.key
 .env

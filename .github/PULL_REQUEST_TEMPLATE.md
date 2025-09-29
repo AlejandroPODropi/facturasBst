@@ -42,3 +42,4 @@ Si es aplicable, agrega capturas de pantalla para ayudar a explicar tus cambios.
 
 ## 📝 **Notas Adicionales**
 Cualquier información adicional que consideres relevante para los revisores.
+
