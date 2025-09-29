@@ -2,7 +2,7 @@
 
 Sistema completo de gestión de facturas desarrollado para Boosting. Incluye backend FastAPI con PostgreSQL, frontend React + TypeScript, sistema de validación con visualizador de archivos, gestión de usuarios y filtros avanzados.
 
-## 🎯 **¡MVP Fase 1 COMPLETADO AL 100%! 🎉**
+## 🎯 **¡MVP Fase 1 y Fase 2 COMPLETADOS AL 100%! 🎉**
 
 ---
 
@@ -103,13 +103,19 @@ GRANT ALL PRIVILEGES ON DATABASE facturas_boosting TO boosting_user;
 - [x] Documentación completa
 - [x] Código en GitHub
 
-### 📋 **Próximas Funcionalidades (Fase 2)**
-- [ ] Integración con correo electrónico
-- [ ] OCR para facturas físicas
-- [ ] Dashboard avanzado con gráficos
-- [ ] Autenticación y autorización
+### ✅ **Completado (Fase 2) - 100% 🎉**
+- [x] **Integración con Gmail API** para procesamiento automático de facturas electrónicas
+- [x] **OCR para facturas físicas** con Tesseract y patrones de extracción optimizados
+- [x] **Dashboard avanzado** con gráficos interactivos y métricas en tiempo real
+- [x] **Sistema de CI/CD** con GitHub Actions y despliegue automático a GCP
+- [x] **Documentación completa** de instalación, configuración y despliegue
+
+### 📋 **Próximas Funcionalidades (Fase 3)**
+- [ ] Autenticación y autorización avanzada
 - [ ] Notificaciones push
 - [ ] App móvil (React Native)
+- [ ] Integración con software contable
+- [ ] Análisis predictivo con IA
 
 ---
 
@@ -182,6 +188,19 @@ npm test
 
 ---
 
+## 🔄 **CI/CD Automático**
+
+El proyecto incluye configuración completa de CI/CD con GitHub Actions:
+
+- **CI**: Tests automáticos, linting, análisis de seguridad
+- **CD**: Despliegue automático a GCP desde la rama `main`
+- **Dependabot**: Actualización automática de dependencias
+- **CodeQL**: Análisis estático de código
+
+Ver [CICD_README.md](CICD_README.md) para configuración detallada.
+
+---
+
 ## 📚 **Documentación API**
 
 Una vez que el servidor esté ejecutándose, puedes acceder a:
@@ -220,4 +239,4 @@ Para preguntas o soporte, contacta al equipo de desarrollo.
 
 ---
 
-**¡Sistema de Control de Facturas para Boosting - MVP Fase 1 Completado! 🎉**
+**¡Sistema de Control de Facturas para Boosting - MVP Fase 1 y Fase 2 Completados! 🎉**
