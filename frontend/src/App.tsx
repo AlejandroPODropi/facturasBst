@@ -4,6 +4,7 @@ import { Dashboard } from './pages/Dashboard'
 import { Users } from './pages/Users'
 import { Invoices } from './pages/Invoices'
 import { CreateInvoice } from './pages/CreateInvoice'
+import { OCRProcessing } from './pages/OCRProcessing'
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/users" element={<Users />} />
         <Route path="/invoices" element={<Invoices />} />
         <Route path="/invoices/create" element={<CreateInvoice />} />
+        <Route path="/ocr" element={<OCRProcessing />} />
       </Routes>
     </Layout>
   )

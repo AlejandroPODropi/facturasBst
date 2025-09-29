@@ -3,8 +3,9 @@ import {
   LayoutDashboard, 
   Users, 
   FileText, 
-  Plus,
-  Building2
+  Plus, 
+  Building2,
+  Scan
 } from 'lucide-react'
 import { clsx } from 'clsx'
 
@@ -17,6 +18,7 @@ const navigation = [
   { name: 'Usuarios', href: '/users', icon: Users },
   { name: 'Facturas', href: '/invoices', icon: FileText },
   { name: 'Nueva Factura', href: '/invoices/create', icon: Plus },
+  { name: 'OCR Facturas', href: '/ocr', icon: Scan },
 ]
 
 export function Layout({ children }: LayoutProps) {
