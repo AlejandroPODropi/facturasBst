@@ -12,6 +12,7 @@ import {
 import { Chart } from '../components/Chart'
 import { UserStats } from '../components/UserStats'
 import { InvoiceTrends } from '../components/InvoiceTrends'
+import { GmailIntegration } from '../components/GmailIntegration'
 
 export function Dashboard() {
   // Consultas para datos básicos (mantener compatibilidad)
@@ -301,6 +302,9 @@ export function Dashboard() {
           )}
         </div>
       </div>
+
+      {/* Gmail Integration */}
+      <GmailIntegration />
     </div>
   )
 }

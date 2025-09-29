@@ -119,7 +119,7 @@ export const invoicesApi = {
 }
 
 // Dashboard API
-export const dashboardApi = {
+const dashboardApiBase = {
   getStats: async (): Promise<any> => {
     const response = await api.get('/dashboard/stats')
     return response.data
@@ -159,6 +159,111 @@ export const dashboardApi = {
     const response = await api.get(`/dashboard/recent-activity?limit=${limit}`)
     return response.data
   },
+}
+
+// Gmail API
+export const gmailApi = {
+  getAuthStatus: async (): Promise<any> => {
+    const response = await api.get('/gmail/auth/status')
+    return response.data
+  },
+
+  authenticate: async (): Promise<any> => {
+    const response = await api.post('/gmail/auth/authenticate')
+    return response.data
+  },
+
+  searchEmails: async (query: string = "has:attachment newer_than:7d", maxResults: number = 10): Promise<any> => {
+    const response = await api.get(`/gmail/emails/search?query=${encodeURIComponent(query)}&max_results=${maxResults}`)
+    return response.data
+  },
+
+  getEmailDetails: async (messageId: string): Promise<any> => {
+    const response = await api.get(`/gmail/emails/${messageId}`)
+    return response.data
+  },
+
+  processInvoices: async (limit: number = 10): Promise<any> => {
+    const response = await api.post(`/gmail/process-invoices/sync?limit=${limit}`)
+    return response.data
+  },
+
+  downloadAttachment: async (messageId: string, attachmentId: string): Promise<any> => {
+    const response = await api.get(`/gmail/attachments/${messageId}/${attachmentId}`)
+    return response.data
+  },
+
+  markAsRead: async (messageId: string): Promise<any> => {
+    const response = await api.post(`/gmail/emails/${messageId}/mark-read`)
+    return response.data
+  },
+
+  getStats: async (): Promise<any> => {
+    const response = await api.get('/gmail/stats')
+    return response.data
+  },
+}
+
+// OCR API
+export const ocrApi = {
+  processInvoice: async (file: File, userId: number): Promise<any> => {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('user_id', userId.toString())
+    const response = await api.post('/ocr/process', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    return response.data
+  },
+
+  processAndCreateInvoice: async (
+    file: File, 
+    userId: number, 
+    paymentMethod: string, 
+    category: string, 
+    description?: string
+  ): Promise<any> => {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('user_id', userId.toString())
+    formData.append('payment_method', paymentMethod)
+    formData.append('category', category)
+    if (description) {
+      formData.append('description', description)
+    }
+    const response = await api.post('/ocr/process-and-create', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    return response.data
+  },
+
+  getSupportedFormats: async (): Promise<any> => {
+    const response = await api.get('/ocr/supported-formats')
+    return response.data
+  },
+
+  getInvoiceOCRData: async (invoiceId: number): Promise<any> => {
+    const response = await api.get(`/ocr/invoice/${invoiceId}/ocr-data`)
+    return response.data
+  },
+
+  validateExtraction: async (ocrData: any): Promise<any> => {
+    const response = await api.post('/ocr/validate-extraction', ocrData)
+    return response.data
+  },
+}
+
+// Dashboard API extendido con funciones de Gmail
+export const dashboardApi = {
+  ...dashboardApiBase,
+  getGmailStats: gmailApi.getStats,
+  getGmailAuthStatus: gmailApi.getAuthStatus,
+  authenticateGmail: gmailApi.authenticate,
+  processGmailInvoices: gmailApi.processInvoices,
 }
 
 export default api

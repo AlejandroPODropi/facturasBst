@@ -1,3 +1,12 @@
+# Credenciales y archivos sensibles
+backend/credentials*.json
+client_secret_*.json
+*.pem
+*.key
+.env
+.env.local
+.env.production
+
 # Python
 __pycache__/
 *.py[cod]
@@ -28,33 +37,7 @@ ENV/
 env.bak/
 venv.bak/
 
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Database
-*.db
-*.sqlite3
-
-# Logs
-*.log
-logs/
-
-# Node.js
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-
-# Frontend build
-frontend/dist/
-frontend/build/
-
-# IDE
+# IDEs
 .vscode/
 .idea/
 *.swp
@@ -70,56 +53,27 @@ frontend/build/
 ehthumbs.db
 Thumbs.db
 
-# Uploaded files
-uploads/
-files/
+# Logs
+*.log
+logs/
 
-# Alembic
-alembic/versions/*.py
-!alembic/versions/.gitkeep
+# Database
+*.db
+*.sqlite
+*.sqlite3
 
-# Coverage reports
-htmlcov/
-.coverage
-.coverage.*
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# Build outputs
+dist/
+build/
+*.tgz
+*.tar.gz
 
-# pyenv
-.python-version
-
-# pipenv
-Pipfile.lock
-
-# PEP 582
-__pypackages__/
-
-# Celery
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
+# Temporary files
+*.tmp
+*.temp
