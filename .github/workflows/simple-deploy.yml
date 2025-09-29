@@ -76,8 +76,8 @@ jobs:
       
     - name: 🗂️ Upload to Cloud Storage
       run: |
-        gsutil -m cp -r frontend/dist/* gs://facturas-frontend-$PROJECT_ID/
-        gsutil -m cp frontend/dist/index.html gs://facturas-frontend-$PROJECT_ID/index.html
+        gsutil -m cp -r frontend/dist/* gs://facturas-frontend-facturasbst-1759186561/
+        gsutil -m cp frontend/dist/index.html gs://facturas-frontend-facturasbst-1759186561/index.html
 
   notify:
     runs-on: ubuntu-latest
@@ -91,7 +91,7 @@ jobs:
       run: |
         echo "✅ Deployment successful!"
         echo "Backend: https://backend-$REGION-$PROJECT_ID.a.run.app"
-        echo "Frontend: https://storage.googleapis.com/facturas-frontend-$PROJECT_ID/index.html"
+        echo "Frontend: https://storage.googleapis.com/facturas-frontend-facturasbst-1759186561/index.html"
         
     - name: 📢 Notify Failure
       if: needs.deploy-backend.result == 'failure' || needs.deploy-frontend.result == 'failure'
