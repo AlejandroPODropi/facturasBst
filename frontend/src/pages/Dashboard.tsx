@@ -1,49 +1,75 @@
 import { useQuery } from 'react-query'
-import { usersApi, invoicesApi } from '../services/api'
+import { usersApi, invoicesApi, dashboardApi } from '../services/api'
 import { 
   Users, 
   FileText, 
   DollarSign, 
   Clock,
   CheckCircle,
-  XCircle
+  XCircle,
+  Activity
 } from 'lucide-react'
+import { Chart } from '../components/Chart'
+import { UserStats } from '../components/UserStats'
+import { InvoiceTrends } from '../components/InvoiceTrends'
 
 export function Dashboard() {
+  // Consultas para datos básicos (mantener compatibilidad)
   const { data: users = [] } = useQuery('users', () => usersApi.getAll())
   const { data: invoicesData } = useQuery('invoices', () => invoicesApi.getAll())
   
+  // Consultas para estadísticas avanzadas del dashboard
+  const { data: dashboardStats, isLoading: statsLoading } = useQuery(
+    'dashboard-stats',
+    () => dashboardApi.getStats(),
+    {
+      refetchInterval: 30000, // Refrescar cada 30 segundos
+    }
+  )
+
   const invoices = invoicesData?.items || []
   const totalAmount = invoices.reduce((sum, invoice) => sum + invoice.amount, 0)
   const pendingInvoices = invoices.filter(invoice => invoice.status === 'pendiente').length
   const validatedInvoices = invoices.filter(invoice => invoice.status === 'validada').length
   const rejectedInvoices = invoices.filter(invoice => invoice.status === 'rechazada').length
 
+  // Estadísticas básicas (fallback si no hay datos del dashboard)
+  const basicStats = dashboardStats?.basic_stats || {
+    total_users: users.length,
+    total_invoices: invoices.length,
+    total_amount: totalAmount,
+    invoices_by_status: {
+      pendiente: pendingInvoices,
+      validada: validatedInvoices,
+      rechazada: rejectedInvoices
+    }
+  }
+
   const stats = [
     {
       name: 'Total Usuarios',
-      value: users.length,
+      value: basicStats.total_users,
       icon: Users,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
     },
     {
       name: 'Total Facturas',
-      value: invoices.length,
+      value: basicStats.total_invoices,
       icon: FileText,
       color: 'text-green-600',
       bgColor: 'bg-green-100',
     },
     {
       name: 'Monto Total',
-      value: `$${totalAmount.toLocaleString()}`,
+      value: `$${basicStats.total_amount.toLocaleString()}`,
       icon: DollarSign,
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-100',
     },
     {
       name: 'Facturas Pendientes',
-      value: pendingInvoices,
+      value: basicStats.invoices_by_status?.pendiente || 0,
       icon: Clock,
       color: 'text-orange-600',
       bgColor: 'bg-orange-100',
@@ -53,19 +79,32 @@ export function Dashboard() {
   const statusStats = [
     {
       name: 'Validadas',
-      value: validatedInvoices,
+      value: basicStats.invoices_by_status?.validada || 0,
       icon: CheckCircle,
       color: 'text-green-600',
       bgColor: 'bg-green-100',
     },
     {
       name: 'Rechazadas',
-      value: rejectedInvoices,
+      value: basicStats.invoices_by_status?.rechazada || 0,
       icon: XCircle,
       color: 'text-red-600',
       bgColor: 'bg-red-100',
     },
   ]
+
+  // Preparar datos para gráficos
+  const categoryData = dashboardStats?.category_distribution?.map((cat: any) => ({
+    label: cat.category_label,
+    value: cat.count,
+    total_amount: cat.total_amount
+  })) || []
+
+  const paymentMethodData = dashboardStats?.payment_method_distribution?.map((method: any) => ({
+    label: method.method_label,
+    value: method.count,
+    total_amount: method.total_amount
+  })) || []
 
   return (
     <div className="space-y-6">
@@ -113,6 +152,92 @@ export function Dashboard() {
           </div>
         ))}
       </div>
+
+      {/* Métricas de rendimiento */}
+      {dashboardStats?.validation_performance && (
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+          <div className="card">
+            <div className="card-content">
+              <div className="flex items-center">
+                <div className="flex-shrink-0 rounded-md p-3 bg-purple-100">
+                  <Activity className="h-6 w-6 text-purple-600" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-500">Tasa de Validación</p>
+                  <p className="text-2xl font-semibold text-gray-900">
+                    {dashboardStats.validation_performance.validation_rate}%
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="card">
+            <div className="card-content">
+              <div className="flex items-center">
+                <div className="flex-shrink-0 rounded-md p-3 bg-indigo-100">
+                  <Clock className="h-6 w-6 text-indigo-600" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-500">Tiempo Promedio</p>
+                  <p className="text-2xl font-semibold text-gray-900">
+                    {dashboardStats.validation_performance.avg_validation_time_hours}h
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="card">
+            <div className="card-content">
+              <div className="flex items-center">
+                <div className="flex-shrink-0 rounded-md p-3 bg-teal-100">
+                  <CheckCircle className="h-6 w-6 text-teal-600" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-500">Total Validadas</p>
+                  <p className="text-2xl font-semibold text-gray-900">
+                    {dashboardStats.validation_performance.total_validated}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Gráficos y estadísticas avanzadas */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Tendencias mensuales */}
+        <div className="lg:col-span-2">
+          <InvoiceTrends 
+            trends={dashboardStats?.monthly_trends || []} 
+            isLoading={statsLoading}
+          />
+        </div>
+
+        {/* Distribución por categorías */}
+        <Chart
+          title="Distribución por Categorías"
+          data={categoryData}
+          type="pie"
+          height={300}
+        />
+
+        {/* Distribución por métodos de pago */}
+        <Chart
+          title="Distribución por Métodos de Pago"
+          data={paymentMethodData}
+          type="doughnut"
+          height={300}
+        />
+      </div>
+
+      {/* Estadísticas por usuario */}
+      <UserStats 
+        userStats={dashboardStats?.user_stats || []} 
+        isLoading={statsLoading}
+      />
 
       {/* Recent Invoices */}
       <div className="card">

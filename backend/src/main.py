@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
 
-from src.routers import invoices, users
+from src.routers import invoices, users, dashboard
 from src.database import engine
 from src.models import Base
 
@@ -41,6 +41,7 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 # Incluir routers
 app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
 app.include_router(invoices.router, prefix="/api/v1/invoices", tags=["invoices"])
+app.include_router(dashboard.router, prefix="/api/v1", tags=["dashboard"])
 
 
 @app.get("/")

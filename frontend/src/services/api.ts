@@ -118,4 +118,47 @@ export const invoicesApi = {
 
 }
 
+// Dashboard API
+export const dashboardApi = {
+  getStats: async (): Promise<any> => {
+    const response = await api.get('/dashboard/stats')
+    return response.data
+  },
+
+  getBasicStats: async (): Promise<any> => {
+    const response = await api.get('/dashboard/basic-stats')
+    return response.data
+  },
+
+  getTrends: async (months: number = 6): Promise<any> => {
+    const response = await api.get(`/dashboard/trends?months=${months}`)
+    return response.data
+  },
+
+  getUserStats: async (limit: number = 10): Promise<any> => {
+    const response = await api.get(`/dashboard/user-stats?limit=${limit}`)
+    return response.data
+  },
+
+  getCategoryDistribution: async (): Promise<any> => {
+    const response = await api.get('/dashboard/category-distribution')
+    return response.data
+  },
+
+  getPaymentMethodDistribution: async (): Promise<any> => {
+    const response = await api.get('/dashboard/payment-method-distribution')
+    return response.data
+  },
+
+  getValidationPerformance: async (): Promise<any> => {
+    const response = await api.get('/dashboard/validation-performance')
+    return response.data
+  },
+
+  getRecentActivity: async (limit: number = 10): Promise<any> => {
+    const response = await api.get(`/dashboard/recent-activity?limit=${limit}`)
+    return response.data
+  },
+}
+
 export default api
