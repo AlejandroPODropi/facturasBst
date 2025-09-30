@@ -1,4 +1,4 @@
-import React from 'react'
+// import React from 'react'
 import { User, DollarSign, FileText, TrendingUp } from 'lucide-react'
 
 interface UserStat {

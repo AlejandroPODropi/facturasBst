@@ -7,8 +7,8 @@ WORKDIR /app
 # Copiar package files
 COPY package*.json ./
 
-# Instalar dependencias
-RUN npm ci --only=production
+# Instalar dependencias (incluyendo dev para build)
+RUN npm ci
 
 # Copiar código fuente
 COPY . .
@@ -27,6 +27,10 @@ COPY --from=build /app/dist /usr/share/nginx/html
 
 # Copiar configuración nginx personalizada
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copiar script de inicio
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 
 # Crear usuario no-root
 RUN addgroup -g 1001 -S nodejs
@@ -47,7 +51,7 @@ EXPOSE 80
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost/ || exit 1
+    CMD curl -f http://localhost:80/ || exit 1
 
 # Comando de inicio
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/start.sh"]

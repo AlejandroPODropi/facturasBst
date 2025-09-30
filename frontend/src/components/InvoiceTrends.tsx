@@ -1,4 +1,4 @@
-import React from 'react'
+// import React from 'react'
 import { Chart } from './Chart'
 import { TrendingUp, Calendar, DollarSign } from 'lucide-react'
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { dashboardApi } from '../services/api'
 import { 
@@ -9,15 +9,15 @@ import {
   Settings, 
   Download,
   Eye,
-  Clock
+  // Clock
 } from 'lucide-react'
 
-interface GmailStats {
-  total_emails_7d: number
-  emails_with_attachments_7d: number
-  unread_emails_7d: number
-  attachment_rate: number
-}
+// interface GmailStats {
+//   total_emails_7d: number
+//   emails_with_attachments_7d: number
+//   unread_emails_7d: number
+//   attachment_rate: number
+// }
 
 interface ProcessedInvoice {
   invoice_id: number
