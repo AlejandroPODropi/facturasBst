@@ -106,21 +106,25 @@ deploy_backend() {
 deploy_frontend() {
     log_info "Construyendo y desplegando frontend..."
     
-    # Instalar dependencias y construir
-    cd frontend
-    log_info "Instalando dependencias de frontend..."
-    npm ci
+    # Construir imagen Docker del frontend
+    log_info "Construyendo imagen Docker del frontend..."
+    gcloud builds submit --tag $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/frontend:latest ./frontend
     
-    log_info "Construyendo aplicación frontend..."
-    npm run build
+    # Desplegar a Cloud Run
+    log_info "Desplegando frontend a Cloud Run..."
+    gcloud run deploy frontend \
+        --image $REGION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/frontend:latest \
+        --platform managed \
+        --region $REGION \
+        --allow-unauthenticated \
+        --port 80 \
+        --memory 1Gi \
+        --cpu 1 \
+        --max-instances 10 \
+        --min-instances 0 \
+        --timeout 300 \
+        --set-env-vars="VITE_API_URL=https://backend-bktmzvs3hq-uc.a.run.app/api/v1"
     
-    # Subir a Cloud Storage
-    log_info "Subiendo archivos a Cloud Storage..."
-    gsutil -m cp -r dist/* gs://$BUCKET_NAME/
-    gsutil -m cp dist/index.html gs://$BUCKET_NAME/index.html
-    gsutil -m setmeta -h "Cache-Control:no-cache" gs://$BUCKET_NAME/index.html
-    
-    cd ..
     log_success "Frontend desplegado exitosamente"
 }
 
@@ -128,10 +132,11 @@ deploy_frontend() {
 verify_deployment() {
     log_info "Verificando despliegue..."
     
-    # Obtener URL del backend
+    # Obtener URLs de los servicios
     BACKEND_URL=$(gcloud run services describe $SERVICE_NAME --region=$REGION --format="value(status.url)")
+    FRONTEND_URL=$(gcloud run services describe frontend --region=$REGION --format="value(status.url)")
     
-    # Verificar health check
+    # Verificar health check del backend
     log_info "Verificando health check del backend..."
     if curl -f "$BACKEND_URL/health" > /dev/null 2>&1; then
         log_success "Backend está funcionando correctamente"
@@ -141,7 +146,7 @@ verify_deployment() {
     
     # Verificar frontend
     log_info "Verificando frontend..."
-    if curl -f "https://storage.googleapis.com/$BUCKET_NAME/index.html" > /dev/null 2>&1; then
+    if curl -f "$FRONTEND_URL" > /dev/null 2>&1; then
         log_success "Frontend está accesible"
     else
         log_warning "Frontend no está accesible"
@@ -153,7 +158,7 @@ verify_deployment() {
     echo ""
     echo "📊 URLs del sistema:"
     echo "  Backend API: $BACKEND_URL"
-    echo "  Frontend: https://storage.googleapis.com/$BUCKET_NAME/index.html"
+    echo "  Frontend: $FRONTEND_URL"
     echo "  Health Check: $BACKEND_URL/health"
     echo "  API Docs: $BACKEND_URL/docs"
     echo ""
