@@ -225,7 +225,7 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
       </div>
 
       {/* Paso 2: Resultados del OCR */}
-      {ocrResult && (
+      {ocrResult ? (
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">
@@ -388,10 +388,10 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
             )}
           </div>
         </div>
-      )}
+      ) : null}
 
       {/* Paso 3: Completar información y crear factura */}
-      {ocrResult && (
+      {ocrResult ? (
         <div className="border-t pt-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             Completar información
@@ -470,7 +470,7 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
             </button>
           </div>
         </div>
-      )}
+      ) : null}
 
       {/* Mensajes de error */}
       {processOCRMutation.error && (

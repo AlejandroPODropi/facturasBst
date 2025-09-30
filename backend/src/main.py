@@ -14,8 +14,13 @@ from src.routers import invoices, users, dashboard, ocr
 from src.database import engine
 from src.models import Base
 
-# Crear tablas en la base de datos
-Base.metadata.create_all(bind=engine)
+# Crear tablas en la base de datos (con manejo de errores)
+try:
+    Base.metadata.create_all(bind=engine)
+    print("✅ Tablas de base de datos creadas exitosamente")
+except Exception as e:
+    print(f"⚠️  Advertencia: No se pudieron crear las tablas de base de datos: {e}")
+    print("Las tablas se crearán automáticamente cuando se acceda a la base de datos")
 
 # Crear directorio de uploads si no existe
 os.makedirs("uploads", exist_ok=True)
