@@ -61,12 +61,20 @@ def getconn():
     return None
 
 # Crear engine de SQLAlchemy
-# Usar conexión directa (local o IP) por ahora
-engine = create_engine(
-    settings.database_url,
-    pool_pre_ping=True,
-    echo=settings.debug
-)
+# Usar Cloud SQL connector si está configurado, sino conexión directa
+if "host=/cloudsql/" in settings.database_url:
+    engine = create_engine(
+        "postgresql+pg8000://",
+        creator=getconn,
+        pool_pre_ping=True,
+        echo=settings.debug
+    )
+else:
+    engine = create_engine(
+        settings.database_url,
+        pool_pre_ping=True,
+        echo=settings.debug
+    )
 
 # Crear sesión de base de datos
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
