@@ -73,6 +73,7 @@ class Invoice(Base):
     category = Column(Enum(ExpenseCategory), nullable=False)
     file_path = Column(String(500), nullable=True)  # Ruta del archivo adjunto
     description = Column(Text, nullable=True)
+    nit = Column(String(50), nullable=True, index=True)  # Número de identificación tributaria
     status = Column(Enum(InvoiceStatus), nullable=False, default=InvoiceStatus.PENDING)
     # Campos para OCR
     ocr_data = Column(JSON, nullable=True)  # Datos extraídos por OCR

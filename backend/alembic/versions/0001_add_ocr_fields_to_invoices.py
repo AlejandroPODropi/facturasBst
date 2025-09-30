@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '0001'
+revision = '0001_add_ocr_fields_to_invoices'
 down_revision = None
 branch_labels = None
 depends_on = None

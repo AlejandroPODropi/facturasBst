@@ -48,6 +48,7 @@ class InvoiceBase(BaseModel):
     payment_method: PaymentMethod = Field(..., description="Método de pago utilizado")
     category: ExpenseCategory = Field(..., description="Categoría del gasto")
     description: Optional[str] = Field(None, max_length=1000, description="Descripción adicional")
+    nit: Optional[str] = Field(None, max_length=50, description="Número de identificación tributaria")
 
 
 class InvoiceCreate(InvoiceBase):

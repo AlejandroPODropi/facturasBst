@@ -14,7 +14,7 @@ import logging
 from src.database import get_db
 from src.services.ocr_service import ocr_service
 from src.models import Invoice, User, InvoiceStatus, ExpenseCategory, PaymentMethod
-from src.schemas import InvoiceCreate, Invoice
+from src.schemas import InvoiceCreate
 from datetime import datetime
 
 # Configurar logging
@@ -92,7 +92,7 @@ async def process_invoice_ocr(
         )
 
 
-@router.post("/process-and-create", response_model=Invoice)
+@router.post("/process-and-create", response_model=Dict[str, Any])
 async def process_and_create_invoice(
     file: UploadFile = File(...),
     user_id: int = Form(...),
@@ -164,15 +164,24 @@ async def process_and_create_invoice(
                 final_file.write(content)
             
             # Crear factura en la base de datos
+            # Asegurar que provider no sea None
+            provider = ocr_result.get('provider')
+            if not provider or provider is None:
+                provider = 'Proveedor no identificado'
+            
+            # Asegurar que amount no sea None
+            amount = ocr_result.get('amount')
+            if amount is None:
+                amount = 0.0
+            
             invoice_data = InvoiceCreate(
                 date=datetime.fromisoformat(ocr_result['date']) if ocr_result.get('date') else datetime.now(),
-                provider=ocr_result.get('provider', 'Proveedor no identificado'),
-                amount=ocr_result['amount'],
+                provider=provider,
+                amount=amount,
                 payment_method=payment_method,
                 category=category,
                 user_id=user_id,
-                description=description or f"Factura procesada con OCR. Confianza: {ocr_result['confidence']:.2f}",
-                file_path=file_path
+                description=description or f"Factura procesada con OCR. Confianza: {ocr_result['confidence']:.2f}"
             )
             
             # Crear registro en la base de datos
@@ -184,7 +193,8 @@ async def process_and_create_invoice(
                 category=invoice_data.category,
                 user_id=invoice_data.user_id,
                 description=invoice_data.description,
-                file_path=invoice_data.file_path,
+                file_path=file_path,
+                nit=ocr_result.get('nit'),
                 status=InvoiceStatus.PENDING,
                 ocr_data=ocr_result,  # Guardar datos OCR para referencia
                 ocr_confidence=ocr_result['confidence']
@@ -196,7 +206,22 @@ async def process_and_create_invoice(
             
             logger.info(f"Factura creada con OCR: ID {db_invoice.id}, confianza {ocr_result['confidence']:.2f}")
             
-            return Invoice.from_orm(db_invoice)
+            return {
+                "id": db_invoice.id,
+                "date": db_invoice.date.isoformat(),
+                "provider": db_invoice.provider,
+                "amount": db_invoice.amount,
+                "payment_method": db_invoice.payment_method.value,
+                "category": db_invoice.category.value,
+                "user_id": db_invoice.user_id,
+                "description": db_invoice.description,
+                "file_path": db_invoice.file_path,
+                "status": db_invoice.status.value,
+                "created_at": db_invoice.created_at.isoformat(),
+                "ocr_confidence": ocr_result['confidence'],
+                "nit": db_invoice.nit,
+                "message": "Factura creada exitosamente con OCR"
+            }
             
         finally:
             # Limpiar archivo temporal

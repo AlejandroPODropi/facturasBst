@@ -28,6 +28,9 @@ interface OCRResult {
   raw_text: string
   user_id: number
   user_name: string
+  nit?: string | null
+  payment_method?: string | null
+  category?: string | null
 }
 
 interface OCRProcessorProps {
@@ -49,6 +52,7 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
     provider: '',
     date: '',
     invoice_number: '',
+    nit: '',
     payment_method: '' as PaymentMethod,
     category: '' as ExpenseCategory,
     description: ''
@@ -62,15 +66,16 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
       return ocrApi.processInvoice(file, userId)
     },
     {
-      onSuccess: (data) => {
+      onSuccess: (data: OCRResult) => {
         setOcrResult(data)
         setFormData({
           amount: data.amount?.toString() || '',
           provider: data.provider || '',
           date: data.date ? data.date.split('T')[0] : '',
           invoice_number: data.invoice_number || '',
-          payment_method: '' as PaymentMethod,
-          category: '' as ExpenseCategory,
+          nit: data.nit || '',
+          payment_method: PaymentMethod.CASH,
+          category: ExpenseCategory.OTHER,
           description: `Factura procesada con OCR. Confianza: ${(data.confidence * 100).toFixed(1)}%`
         })
         setIsProcessing(false)
@@ -137,6 +142,7 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
         provider: ocrResult.provider || '',
         date: ocrResult.date ? ocrResult.date.split('T')[0] : '',
         invoice_number: ocrResult.invoice_number || '',
+        nit: ocrResult.nit || '',
         payment_method: formData.payment_method,
         category: formData.category,
         description: formData.description
@@ -158,28 +164,30 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 flex items-center">
-          <FileText className="h-6 w-6 mr-2 text-blue-600" />
-          Procesar Factura con OCR
-        </h2>
-        {onCancel && (
-          <button
-            onClick={onCancel}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            <X className="h-6 w-6" />
-          </button>
-        )}
-      </div>
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto max-w-4xl">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center mb-4 sm:mb-0">
+              <FileText className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-blue-600" />
+              Procesar Factura con OCR
+            </h2>
+            {onCancel && (
+              <button
+                onClick={onCancel}
+                className="text-gray-400 hover:text-gray-600 self-end sm:self-auto"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            )}
+          </div>
 
       {/* Paso 1: Selección de archivo */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Seleccionar archivo de factura
         </label>
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-6 text-center">
           <input
             type="file"
             accept=".jpg,.jpeg,.png,.pdf,.tiff,.bmp"
@@ -191,11 +199,11 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
             htmlFor="file-upload"
             className="cursor-pointer flex flex-col items-center"
           >
-            <Upload className="h-12 w-12 text-gray-400 mb-4" />
-            <span className="text-lg font-medium text-gray-900">
+            <Upload className="h-8 w-8 sm:h-12 sm:w-12 text-gray-400 mb-4" />
+            <span className="text-sm sm:text-lg font-medium text-gray-900">
               {selectedFile ? selectedFile.name : 'Hacer clic para seleccionar archivo'}
             </span>
-            <span className="text-sm text-gray-500 mt-2">
+            <span className="text-xs sm:text-sm text-gray-500 mt-2">
               Formatos soportados: JPG, PNG, PDF, TIFF, BMP
             </span>
           </label>
@@ -206,7 +214,7 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
             <button
               onClick={handleProcessOCR}
               disabled={isProcessing}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center"
+              className="w-full sm:w-auto bg-blue-600 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center"
             >
               {isProcessing ? (
                 <>
@@ -227,11 +235,11 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
       {/* Paso 2: Resultados del OCR */}
       {ocrResult && (
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 space-y-2 sm:space-y-0">
             <h3 className="text-lg font-semibold text-gray-900">
               Datos extraídos por OCR
             </h3>
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
               <span className={`text-sm font-medium ${getConfidenceColor(ocrResult.confidence)}`}>
                 Confianza: {getConfidenceLabel(ocrResult.confidence)} ({(ocrResult.confidence * 100).toFixed(1)}%)
               </span>
@@ -357,14 +365,40 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
                 </div>
               )}
             </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                NIT
+              </label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={formData.nit}
+                  onChange={(e) => setFormData({ ...formData, nit: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Número de identificación tributaria"
+                />
+              ) : (
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
+                  <span className="text-gray-900">
+                    {ocrResult.nit || 'No detectado'}
+                  </span>
+                  {ocrResult.nit ? (
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                  ) : (
+                    <AlertCircle className="h-5 w-5 text-red-500" />
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Botones de edición */}
-          <div className="mt-4 flex justify-end space-x-2">
+          <div className="mt-4 flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2">
             {!isEditing ? (
               <button
                 onClick={handleEditData}
-                className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 flex items-center"
+                className="w-full sm:w-auto bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 flex items-center justify-center"
               >
                 <Edit3 className="h-4 w-4 mr-2" />
                 Editar datos
@@ -373,13 +407,13 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
               <>
                 <button
                   onClick={handleCancelEdit}
-                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400"
+                  className="w-full sm:w-auto bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={handleSaveEdit}
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center"
+                  className="w-full sm:w-auto bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center justify-center"
                 >
                   <Save className="h-4 w-4 mr-2" />
                   Guardar cambios
@@ -391,7 +425,7 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
       )}
 
       {/* Paso 3: Completar información y crear factura */}
-      {ocrResult && (
+      {ocrResult ? (
         <div className="border-t pt-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             Completar información
@@ -409,8 +443,8 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
                 required
               >
                 <option value="">Seleccionar método</option>
-                {Object.entries(PAYMENT_METHOD_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>
+                {Object.entries(PAYMENT_METHOD_LABELS).map(([key, label]) => (
+                  <option key={key} value={key}>
                     {label}
                   </option>
                 ))}
@@ -428,8 +462,8 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
                 required
               >
                 <option value="">Seleccionar categoría</option>
-                {Object.entries(EXPENSE_CATEGORY_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>
+                {Object.entries(EXPENSE_CATEGORY_LABELS).map(([key, label]) => (
+                  <option key={key} value={key}>
                     {label}
                   </option>
                 ))}
@@ -450,11 +484,11 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
             />
           </div>
 
-          <div className="flex justify-end space-x-2">
+          <div className="flex justify-end">
             <button
               onClick={handleCreateInvoice}
               disabled={!formData.payment_method || !formData.category || createInvoiceMutation.isLoading}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center"
+              className="w-full sm:w-auto bg-blue-600 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center"
             >
               {createInvoiceMutation.isLoading ? (
                 <>
@@ -470,7 +504,7 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
             </button>
           </div>
         </div>
-      )}
+      ) : null}
 
       {/* Mensajes de error */}
       {processOCRMutation.error && (
@@ -478,7 +512,7 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
           <div className="flex items-center">
             <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
             <span className="text-red-700">
-              Error procesando la factura: {(processOCRMutation.error as Error)?.message || 'Error desconocido'}
+              Error procesando la factura: {String(processOCRMutation.error)}
             </span>
           </div>
         </div>
@@ -489,11 +523,13 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
           <div className="flex items-center">
             <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
             <span className="text-red-700">
-              Error creando la factura: {(createInvoiceMutation.error as Error)?.message || 'Error desconocido'}
+              Error creando la factura: {String(createInvoiceMutation.error)}
             </span>
           </div>
         </div>
       )}
+        </div>
+      </div>
     </div>
   )
 }

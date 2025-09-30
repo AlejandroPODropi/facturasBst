@@ -21,6 +21,7 @@ export interface Invoice {
   created_at: string
   updated_at?: string
   user: User
+  nit?: string
 }
 
 export interface CreateUserRequest {
@@ -37,6 +38,7 @@ export interface CreateInvoiceRequest {
   category: ExpenseCategory
   user_id: number
   description?: string
+  nit?: string
 }
 
 export interface UpdateUserRequest {
@@ -53,6 +55,7 @@ export interface UpdateInvoiceRequest {
   category?: ExpenseCategory
   description?: string
   status?: InvoiceStatus
+  nit?: string
 }
 
 export interface PaginatedResponse<T> {

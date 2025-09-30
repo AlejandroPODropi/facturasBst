@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker
 from pydantic_settings import BaseSettings
 import os
 from dotenv import load_dotenv
+from google.cloud.sql.connector import Connector
 
 # Cargar variables de entorno
 load_dotenv()
@@ -17,7 +18,7 @@ load_dotenv()
 class Settings(BaseSettings):
     """Configuración de la aplicación desde variables de entorno."""
     
-    db_url: str = os.getenv("DB_URL", "postgresql://username:password@localhost:5432/facturas_boosting")
+    database_url: str = os.getenv("DATABASE_URL", "postgresql://username:password@localhost:5432/facturas_boosting")
     redis_url: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
     secret_key: str = os.getenv("SECRET_KEY", "your-secret-key-here")
     algorithm: str = os.getenv("ALGORITHM", "HS256")
@@ -33,9 +34,36 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
+# Función para crear conexión con Cloud SQL
+def getconn():
+    """Crear conexión a Cloud SQL usando el connector."""
+    connector = Connector()
+    
+    # Extraer información de la URL de conexión
+    if "host=/cloudsql/" in settings.database_url:
+        # Formato: postgresql://user:pass@/db?host=/cloudsql/project:region:instance
+        import re
+        match = re.search(r'postgresql://([^:]+):([^@]+)@/([^?]+)\?host=(.+)', settings.database_url)
+        if match:
+            user, password, db_name, host = match.groups()
+            # El host debe ser solo la parte después de /cloudsql/
+            instance_connection_name = host.replace('/cloudsql/', '')
+            conn = connector.connect(
+                instance_connection_name,
+                "pg8000",
+                user=user,
+                password=password,
+                db=db_name,
+            )
+            return conn
+    
+    # Fallback para conexiones locales o IP directa
+    return None
+
 # Crear engine de SQLAlchemy
+# Usar conexión directa (local o IP) por ahora
 engine = create_engine(
-    settings.db_url,
+    settings.database_url,
     pool_pre_ping=True,
     echo=settings.debug
 )

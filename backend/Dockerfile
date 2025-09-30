@@ -31,6 +31,7 @@ COPY requirements.txt .
 # Instalar dependencias Python
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir Pillow pytesseract PyMuPDF
+RUN pip install --no-cache-dir cloud-sql-python-connector[pg8000]
 
 # Copiar código fuente
 COPY . .

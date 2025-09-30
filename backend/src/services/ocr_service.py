@@ -28,9 +28,22 @@ class OCRService:
         self.tesseract_config = '--oem 3 --psm 6'
         self.supported_formats = ['.jpg', '.jpeg', '.png', '.tiff', '.bmp', '.pdf']
         
-        # Patrones para extraer información de facturas
+        # Diccionario de categorías por keywords (mejorado)
+        self.categories = {
+            "alimentacion": ["RESTAURANTE", "ALMUERZO", "COMIDA", "CAFETERIA", "BAR", "PIZZA", "HAMBURGUESA"],
+            "combustible": ["GASOLINA", "ACPM", "EDS", "GL", "PETROBRAS", "TERPEL", "ESSO", "SHELL"],
+            "transporte": ["TAXI", "UBER", "BUS", "PEAJE", "TRANSMILENIO", "SITP", "METRO"],
+            "hospedaje": ["HOTEL", "HOSTAL", "ALOJAMIENTO", "HOSPEDAJE", "MOTEL"],
+            "papeleria": ["PAPELERÍA", "ÚTILES", "OFICINA", "PAPEL", "LAPIZ", "BOLIGRAFO"],
+            "farmacia": ["FARMACIA", "MEDICINA", "MEDICAMENTO", "DROGUERIA"],
+            "supermercado": ["SUPERMERCADO", "MARKET", "TIENDA", "ALMACEN", "EXITO", "CARULLA"],
+            "otros": ["VARIOS", "SUMINISTROS", "SERVICIOS"]
+        }
+        
+        # Patrones mejorados para extraer información de facturas
         self.patterns = {
             'amount': [
+                r'(TOTAL|A PAGAR|VALOR BRUTO|VALOR TOTAL)[:\s]*\$?\s*([0-9\.\,]+)',
                 r'total[:\s]*\$?[\s]*([0-9,]+\.?[0-9]*)',
                 r'monto[:\s]*\$?[\s]*([0-9,]+\.?[0-9]*)',
                 r'importe[:\s]*\$?[\s]*([0-9,]+\.?[0-9]*)',
@@ -39,6 +52,7 @@ class OCRService:
                 r'([0-9,]+\.?[0-9]*)[\s]*pesos?',
             ],
             'provider': [
+                r'([A-Z\s\.]+S\.A\.S\.|[A-Z\s]+LTDA|[A-Z\s]+S\.A\.)',
                 r'proveedor[:\s]*([^\n\r]+?)(?:\s+fecha|\s+total|\s+factura|$)',
                 r'vendedor[:\s]*([^\n\r]+?)(?:\s+fecha|\s+total|\s+factura|$)',
                 r'empresa[:\s]*([^\n\r]+?)(?:\s+fecha|\s+total|\s+factura|$)',
@@ -56,8 +70,33 @@ class OCRService:
                 r'factura[:\s]*n[o°]?[:\s]*([0-9a-zA-Z\-]+)',
                 r'no[:\s]*factura[:\s]*([0-9a-zA-Z\-]+)',
                 r'comprobante[:\s]*n[o°]?[:\s]*([0-9a-zA-Z\-]+)',
+            ],
+            'nit': [
+                r'NIT[:\s]*([0-9\-\.]+)',
+                r'IDENTIFICACIÓN[:\s]*([0-9\-\.]+)',
+            ],
+            'payment_method': [
+                r'(EFECTIVO|TARJETA|CONTADO|CREDITO|DEBITO|TRANSFERENCIA)',
+                r'método de pago[:\s]*([^\n\r]+)',
             ]
         }
+    
+    def classify_expense(self, text: str) -> str:
+        """
+        Clasifica el gasto según keywords predefinidos.
+        
+        Args:
+            text: Texto extraído de la factura
+            
+        Returns:
+            str: Categoría del gasto
+        """
+        text_upper = text.upper()
+        for category, keywords in self.categories.items():
+            for keyword in keywords:
+                if keyword in text_upper:
+                    return category.upper()
+        return "OTROS"
     
     def is_supported_format(self, filename: str) -> bool:
         """
@@ -90,12 +129,12 @@ class OCRService:
             if image.mode != 'RGB':
                 image = image.convert('RGB')
             
-            # Extraer texto con Tesseract
+            # Extraer texto con Tesseract (mejorado)
             text = pytesseract.image_to_string(
                 image, 
                 config=self.tesseract_config,
                 lang='spa+eng'  # Español e inglés
-            )
+            ).upper()  # Convertir a mayúsculas para mejor matching
             
             logger.info(f"Texto extraído de imagen: {len(text)} caracteres")
             return text
@@ -184,6 +223,9 @@ class OCRService:
             'provider': None,
             'date': None,
             'invoice_number': None,
+            'nit': None,
+            'payment_method': None,
+            'category': None,
             'raw_text': text,
             'confidence': 0.0
         }
@@ -211,6 +253,20 @@ class OCRService:
         if invoice_number:
             extracted_data['invoice_number'] = invoice_number
         
+        # Extraer NIT
+        nit = self._extract_nit(clean_text)
+        if nit:
+            extracted_data['nit'] = nit
+        
+        # Extraer método de pago
+        payment_method = self._extract_payment_method(clean_text)
+        if payment_method:
+            extracted_data['payment_method'] = payment_method
+        
+        # Clasificar categoría automáticamente
+        category = self.classify_expense(text)
+        extracted_data['category'] = category
+        
         # Calcular confianza basada en datos extraídos
         confidence = self._calculate_confidence(extracted_data)
         extracted_data['confidence'] = confidence
@@ -223,8 +279,15 @@ class OCRService:
             matches = re.findall(pattern, text, re.IGNORECASE)
             if matches:
                 try:
-                    # Limpiar y convertir a float
-                    amount_str = matches[0].replace(',', '')
+                    # Manejar patrones con grupos múltiples
+                    if isinstance(matches[0], tuple):
+                        amount_str = matches[0][1] if len(matches[0]) > 1 else matches[0][0]
+                    else:
+                        amount_str = matches[0]
+                    
+                    amount_str = amount_str.strip()
+                    # Remover comas y puntos (formato colombiano: 1.000.000,50)
+                    amount_str = amount_str.replace('.', '').replace(',', '.')
                     amount = float(amount_str)
                     if amount > 0:
                         return amount
@@ -268,6 +331,26 @@ class OCRService:
                     return invoice_num
         return None
     
+    def _extract_nit(self, text: str) -> Optional[str]:
+        """Extraer NIT de la factura."""
+        for pattern in self.patterns['nit']:
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            if matches:
+                nit = matches[0].strip()
+                if len(nit) > 0:
+                    return nit
+        return None
+    
+    def _extract_payment_method(self, text: str) -> Optional[str]:
+        """Extraer método de pago de la factura."""
+        for pattern in self.patterns['payment_method']:
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            if matches:
+                method = matches[0].strip()
+                if len(method) > 0:
+                    return method
+        return None
+    
     def _parse_date(self, date_str: str) -> Optional[datetime]:
         """Parsear fecha en diferentes formatos."""
         formats = [
@@ -294,13 +377,19 @@ class OCRService:
         confidence = 0.0
         
         if extracted_data['amount']:
-            confidence += 0.4  # El monto es lo más importante
+            confidence += 0.3  # El monto es importante
         if extracted_data['provider']:
-            confidence += 0.3
+            confidence += 0.25
         if extracted_data['date']:
-            confidence += 0.2
+            confidence += 0.15
         if extracted_data['invoice_number']:
             confidence += 0.1
+        if extracted_data['nit']:
+            confidence += 0.1
+        if extracted_data['payment_method']:
+            confidence += 0.05
+        if extracted_data['category'] and extracted_data['category'] != 'OTROS':
+            confidence += 0.05
         
         return round(min(confidence, 1.0), 2)
     

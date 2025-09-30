@@ -13,6 +13,9 @@ RUN npm ci
 # Copiar código fuente
 COPY . .
 
+# Configurar variable de entorno para producción
+ENV VITE_API_URL=https://backend-493189429371.us-central1.run.app/api/v1
+
 # Build de producción
 RUN npm run build
 
