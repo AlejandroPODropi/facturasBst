@@ -62,7 +62,9 @@ def getconn():
 
 # Crear engine de SQLAlchemy
 # Usar Cloud SQL connector si está configurado, sino conexión directa
+print(f"DEBUG: DATABASE_URL = {settings.database_url}")
 if "host=/cloudsql/" in settings.database_url:
+    print("DEBUG: Using Cloud SQL connector")
     engine = create_engine(
         "postgresql+pg8000://",
         creator=getconn,
@@ -70,6 +72,7 @@ if "host=/cloudsql/" in settings.database_url:
         echo=settings.debug
     )
 else:
+    print("DEBUG: Using direct connection")
     engine = create_engine(
         settings.database_url,
         pool_pre_ping=True,
