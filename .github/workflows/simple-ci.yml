@@ -20,7 +20,12 @@ jobs:
       with:
         python-version: '3.12'
         
-    - name: 📦 Install dependencies
+    - name: 📦 Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y tesseract-ocr tesseract-ocr-spa tesseract-ocr-eng
+        
+    - name: 📦 Install Python dependencies
       run: |
         cd backend
         python -m pip install --upgrade pip

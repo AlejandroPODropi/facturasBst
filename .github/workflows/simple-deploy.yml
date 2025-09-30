@@ -2,13 +2,23 @@ name: 🚀 CD - Deploy to GCP
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, deploy-production ]
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - production
+        - staging
 
 env:
   PROJECT_ID: facturasbst
   REGION: us-central1
   REPOSITORY: facturas-repo
+  BUCKET_NAME: facturas-frontend-facturasbst-1759186561
 
 jobs:
   deploy-backend:
@@ -38,7 +48,13 @@ jobs:
           --platform managed \
           --region $REGION \
           --allow-unauthenticated \
-          --set-env-vars="DATABASE_URL=${{ secrets.DATABASE_URL }}"
+          --port 8000 \
+          --memory 2Gi \
+          --cpu 2 \
+          --max-instances 10 \
+          --min-instances 0 \
+          --timeout 300 \
+          --set-env-vars="DATABASE_URL=${{ secrets.DATABASE_URL }},SECRET_KEY=${{ secrets.SECRET_KEY }},GMAIL_CLIENT_ID=${{ secrets.GMAIL_CLIENT_ID }},GMAIL_CLIENT_SECRET=${{ secrets.GMAIL_CLIENT_SECRET }}"
 
   deploy-frontend:
     runs-on: ubuntu-latest
@@ -76,8 +92,9 @@ jobs:
       
     - name: 🗂️ Upload to Cloud Storage
       run: |
-        gsutil -m cp -r frontend/dist/* gs://facturas-frontend-facturasbst-1759186561/
-        gsutil -m cp frontend/dist/index.html gs://facturas-frontend-facturasbst-1759186561/index.html
+        gsutil -m cp -r frontend/dist/* gs://$BUCKET_NAME/
+        gsutil -m cp frontend/dist/index.html gs://$BUCKET_NAME/index.html
+        gsutil -m setmeta -h "Cache-Control:no-cache" gs://$BUCKET_NAME/index.html
 
   notify:
     runs-on: ubuntu-latest
@@ -91,7 +108,8 @@ jobs:
       run: |
         echo "✅ Deployment successful!"
         echo "Backend: https://backend-$REGION-$PROJECT_ID.a.run.app"
-        echo "Frontend: https://storage.googleapis.com/facturas-frontend-facturasbst-1759186561/index.html"
+        echo "Frontend: https://storage.googleapis.com/$BUCKET_NAME/index.html"
+        echo "API Health: https://backend-$REGION-$PROJECT_ID.a.run.app/health"
         
     - name: 📢 Notify Failure
       if: needs.deploy-backend.result == 'failure' || needs.deploy-frontend.result == 'failure'
