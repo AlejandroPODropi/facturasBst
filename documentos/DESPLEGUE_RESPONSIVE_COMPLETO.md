@@ -3,7 +3,7 @@
 ## 📋 Resumen Ejecutivo
 
 **Fecha:** 1 de Octubre de 2025  
-**Versión:** 2.0.0 - Responsive Design  
+**Versión:** 2.0.1 - Responsive Design + Fix CORS  
 **Estado:** ✅ **DESPLEGADO EXITOSAMENTE**
 
 Se ha completado exitosamente el despliegue de la aplicación con todas las mejoras responsive implementadas. La aplicación ahora es completamente funcional en dispositivos móviles, tablets y desktop.
@@ -18,10 +18,12 @@ Se ha completado exitosamente el despliegue de la aplicación con todas las mejo
 - **Navegación Móvil:** Header simplificado con hamburger menu
 
 ### ✅ Despliegue Exitoso
-- **Backend:** Desplegado en Cloud Run
-- **Frontend:** Desplegado en Cloud Run
+- **Backend:** Desplegado en Cloud Run (revisión backend-00024-4qg)
+- **Frontend:** Desplegado en Cloud Run (revisión frontend-00015-hxv)
 - **Base de Datos:** PostgreSQL en Cloud SQL
 - **Health Checks:** Verificados y funcionando
+- **CORS:** Configurado para `facturas.boostingsas.com`
+- **Endpoints:** Todos funcionando correctamente
 
 ## 🌐 URLs del Sistema
 

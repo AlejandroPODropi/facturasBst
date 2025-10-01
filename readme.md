@@ -329,7 +329,7 @@ Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
 
 ## 🌐 URLs de Producción
 
-### 🎉 Última Actualización: Diseño Responsive (v2.0.0)
+### 🎉 Última Actualización: Fix CORS y Endpoints (v2.0.1)
 **Fecha:** 1 de Octubre de 2025  
 **Estado:** ✅ **DESPLEGADO EXITOSAMENTE**
 
@@ -338,11 +338,18 @@ Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
 - **API Docs:** https://backend-493189429371.us-central1.run.app/docs
 - **Health Check:** https://backend-493189429371.us-central1.run.app/health
 
-### 📱 Características Responsive Implementadas
-La aplicación ahora incluye **diseño completamente responsive** optimizado para:
+### 📱 Características Implementadas
+
+#### **Diseño Responsive (v2.0.0)**
 - 📱 **Móviles** (< 640px): Sidebar colapsable, vista de tarjetas
 - 📱 **Tablets** (640px - 1024px): Layout adaptativo, tablas optimizadas  
 - 💻 **Desktop** (> 1024px): Vista completa con sidebar fijo
+
+#### **Fix CORS y Endpoints (v2.0.1)**
+- ✅ CORS configurado para `facturas.boostingsas.com`
+- ✅ Router de Gmail habilitado (endpoints `/stats` y `/auth/status`)
+- ✅ Error 500 en dashboard stats corregido
+- ✅ Archivo `vite.svg` agregado
 
 **Mejoras implementadas:**
 - ✅ Sidebar colapsable con hamburger menu
@@ -350,8 +357,12 @@ La aplicación ahora incluye **diseño completamente responsive** optimizado par
 - ✅ Vista dual: tablas en desktop, tarjetas en móviles
 - ✅ Dashboard con grids adaptativos
 - ✅ Navegación optimizada para todos los dispositivos
+- ✅ Todos los endpoints funcionando correctamente
+- ✅ Sin errores CORS en producción
 
-**Ver documentación completa:** [`documentos/DESPLEGUE_RESPONSIVE_COMPLETO.md`](documentos/DESPLEGUE_RESPONSIVE_COMPLETO.md)
+**Ver documentación completa:**
+- [`documentos/DESPLEGUE_RESPONSIVE_COMPLETO.md`](documentos/DESPLEGUE_RESPONSIVE_COMPLETO.md)
+- [`documentos/SOLUCION_ERRORES_CORS_ENDPOINTS.md`](documentos/SOLUCION_ERRORES_CORS_ENDPOINTS.md)
 
 ## 📞 Soporte
 
