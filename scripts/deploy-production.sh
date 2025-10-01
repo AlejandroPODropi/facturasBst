@@ -97,7 +97,7 @@ deploy_backend() {
         --max-instances 10 \
         --min-instances 0 \
         --timeout 300 \
-        --set-env-vars="ENVIRONMENT=production,DEBUG=false,DATABASE_URL=postgresql://boosting_user:Boosting2024!Secure@/facturas_boosting?host=/cloudsql/facturasbst:us-central1:facturas-db,SECRET_KEY=your-super-secret-production-key-change-this,ALGORITHM=HS256,ACCESS_TOKEN_EXPIRE_MINUTES=30" \
+        --set-env-vars="ENVIRONMENT=production,DEBUG=false,DATABASE_URL=postgresql://boosting_user:boosting_password_2024@/facturas_boosting?host=/cloudsql/facturasbst:us-central1:facturas-db,SECRET_KEY=your-super-secret-production-key-change-this,ALGORITHM=HS256,ACCESS_TOKEN_EXPIRE_MINUTES=30" \
         --add-cloudsql-instances="facturasbst:us-central1:facturas-db"
     
     log_success "Backend desplegado exitosamente"
