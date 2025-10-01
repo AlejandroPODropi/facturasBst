@@ -52,7 +52,7 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 # Incluir routers
 app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
 app.include_router(invoices.router, prefix="/api/v1/invoices", tags=["invoices"])
-app.include_router(dashboard.router, prefix="/api/v1", tags=["dashboard"])
+app.include_router(dashboard.router, prefix="/api/v1/dashboard", tags=["dashboard"])
 app.include_router(gmail.router, prefix="/api/v1/gmail", tags=["gmail"])
 app.include_router(ocr.router, prefix="/api/v1", tags=["ocr"])
 
