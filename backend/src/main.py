@@ -8,9 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
 
-from src.routers import invoices, users, dashboard, ocr
-#gmail
-#from src.routers import gmail
+from src.routers import invoices, users, dashboard, ocr, gmail
 from src.database import engine
 from src.models import Base
 
@@ -36,7 +34,13 @@ app = FastAPI(
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En producción, especificar dominios permitidos
+    allow_origins=[
+        "https://facturas.boostingsas.com",
+        "https://frontend-493189429371.us-central1.run.app",
+        "https://frontend-bktmzvs3hq-uc.a.run.app",
+        "http://localhost:3000",
+        "http://localhost:5173"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -49,8 +53,7 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
 app.include_router(invoices.router, prefix="/api/v1/invoices", tags=["invoices"])
 app.include_router(dashboard.router, prefix="/api/v1", tags=["dashboard"])
-#app.include_router(gmail.router, prefix="/api/v1", tags=["gmail"])
-#gmail
+app.include_router(gmail.router, prefix="/api/v1/gmail", tags=["gmail"])
 app.include_router(ocr.router, prefix="/api/v1", tags=["ocr"])
 
 

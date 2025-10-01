@@ -10,7 +10,7 @@ from typing import Dict, Any
 from src.database import get_db
 from src.services.dashboard_stats import get_dashboard_stats
 
-router = APIRouter(prefix="/dashboard", tags=["dashboard"])
+router = APIRouter(tags=["dashboard"])
 
 
 @router.get("/stats", response_model=Dict[str, Any])
