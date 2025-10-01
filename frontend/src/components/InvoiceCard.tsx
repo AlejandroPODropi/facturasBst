@@ -5,29 +5,16 @@ import {
   INVOICE_STATUS_LABELS,
   INVOICE_STATUS_COLORS,
   PAYMENT_METHOD_LABELS,
-  EXPENSE_CATEGORY_LABELS
+  EXPENSE_CATEGORY_LABELS,
+  Invoice
 } from '../types'
 import { CheckCircle, Eye, Edit, Trash2, Calendar, User, CreditCard, Tag } from 'lucide-react'
 
 interface InvoiceCardProps {
-  invoice: {
-    id: number
-    provider: string
-    description?: string
-    amount: number
-    payment_method: PaymentMethod
-    category: ExpenseCategory
-    status: InvoiceStatus
-    date: string
-    file_path?: string
-    user: {
-      name: string
-      email: string
-    }
-  }
+  invoice: Invoice
   onValidate: (id: number, status: InvoiceStatus) => void
-  onEdit: (id: number) => void
-  onDelete: (id: number) => void
+  onEdit: (invoice: Invoice) => void
+  onDelete: (invoice: Invoice) => void
 }
 
 export function InvoiceCard({ invoice, onValidate, onEdit, onDelete }: InvoiceCardProps) {
@@ -57,14 +44,14 @@ export function InvoiceCard({ invoice, onValidate, onEdit, onDelete }: InvoiceCa
               )}
             </button>
             <button 
-              onClick={() => onEdit(invoice.id)}
+              onClick={() => onEdit(invoice)}
               className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50" 
               title="Editar"
             >
               <Edit className="h-4 w-4" />
             </button>
             <button 
-              onClick={() => onDelete(invoice.id)}
+              onClick={() => onDelete(invoice)}
               className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50" 
               title="Eliminar"
             >
