@@ -174,13 +174,21 @@ Los archivos de GitHub Actions están listos en `.github/workflows/` pero necesi
 
 ## 📚 Documentación
 
-- [Guía de Instalación](INSTALACION.md)
-- [Configuración Gmail](CONFIGURACION_GMAIL.md)
-- [Configuración OCR](CONFIGURACION_OCR.md)
-- [Despliegue en Producción](DESPLIEGUE_PRODUCCION.md)
-- [Despliegue GCP](DESPLIEGUE_GCP.md)
-- [Troubleshooting](TROUBLESHOOTING.md)
-- [Resumen Ejecutivo](RESUMEN_EJECUTIVO.md)
+**Toda la documentación está organizada en la carpeta [`documentos/`](documentos/)**
+
+### Documentos Principales:
+- [📖 Índice Completo de Documentación](documentos/README.md)
+- [📘 README Actualizado (Versión Completa)](documentos/README_ACTUALIZADO.md)
+- [🚀 Guía de Instalación](documentos/INSTALACION.md)
+- [⚙️ Configuración Gmail](documentos/CONFIGURACION_GMAIL.md)
+- [🔍 Configuración OCR](documentos/CONFIGURACION_OCR.md)
+- [☁️ Despliegue en Producción](documentos/DESPLIEGUE_PRODUCCION.md)
+- [🌐 Despliegue GCP](documentos/DESPLIEGUE_GCP.md)
+- [🔧 Troubleshooting](documentos/TROUBLESHOOTING.md)
+- [📊 Resumen Ejecutivo](documentos/RESUMEN_EJECUTIVO.md)
+- [🗄️ Configuración de Base de Datos](documentos/CONFIGURACION_BASE_DATOS.md)
+- [🔨 Solución Problema Base de Datos](documentos/SOLUCION_PROBLEMA_BASE_DATOS.md)
+- [📜 Historial de Desarrollo](documentos/HISTORIAL_DESARROLLO_Y_PROBLEMAS.md)
 
 ## 🧪 Testing
 
