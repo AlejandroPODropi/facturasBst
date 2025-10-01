@@ -164,73 +164,75 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-4xl">
-        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center mb-4 sm:mb-0">
-              <FileText className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-blue-600" />
+    <div className="space-y-4 lg:space-y-6">
+      <div className="card">
+        <div className="card-header">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-lg lg:text-xl font-bold text-gray-900 flex items-center">
+              <FileText className="h-5 w-5 lg:h-6 lg:w-6 mr-2 text-blue-600" />
               Procesar Factura con OCR
             </h2>
             {onCancel && (
               <button
                 onClick={onCancel}
-                className="text-gray-400 hover:text-gray-600 self-end sm:self-auto"
+                className="text-gray-400 hover:text-gray-600 self-end sm:self-auto mt-2 sm:mt-0"
               >
                 <X className="h-6 w-6" />
               </button>
             )}
           </div>
-
-      {/* Paso 1: Selección de archivo */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Seleccionar archivo de factura
-        </label>
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-6 text-center">
-          <input
-            type="file"
-            accept=".jpg,.jpeg,.png,.pdf,.tiff,.bmp"
-            onChange={handleFileSelect}
-            className="hidden"
-            id="file-upload"
-          />
-          <label
-            htmlFor="file-upload"
-            className="cursor-pointer flex flex-col items-center"
-          >
-            <Upload className="h-8 w-8 sm:h-12 sm:w-12 text-gray-400 mb-4" />
-            <span className="text-sm sm:text-lg font-medium text-gray-900">
-              {selectedFile ? selectedFile.name : 'Hacer clic para seleccionar archivo'}
-            </span>
-            <span className="text-xs sm:text-sm text-gray-500 mt-2">
-              Formatos soportados: JPG, PNG, PDF, TIFF, BMP
-            </span>
-          </label>
         </div>
-        
-        {selectedFile && (
-          <div className="mt-4 flex justify-center">
-            <button
-              onClick={handleProcessOCR}
-              disabled={isProcessing}
-              className="w-full sm:w-auto bg-blue-600 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center"
-            >
-              {isProcessing ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Procesando...
-                </>
-              ) : (
-                <>
-                  <FileText className="h-4 w-4 mr-2" />
-                  Procesar con OCR
-                </>
-              )}
-            </button>
+        <div className="card-content">
+
+          {/* Paso 1: Selección de archivo */}
+          <div className="mb-4 lg:mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Seleccionar archivo de factura
+            </label>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 lg:p-6 text-center">
+              <input
+                type="file"
+                accept=".jpg,.jpeg,.png,.pdf,.tiff,.bmp"
+                onChange={handleFileSelect}
+                className="hidden"
+                id="file-upload"
+              />
+              <label
+                htmlFor="file-upload"
+                className="cursor-pointer flex flex-col items-center"
+              >
+                <Upload className="h-8 w-8 lg:h-12 lg:w-12 text-gray-400 mb-4" />
+                <span className="text-sm lg:text-lg font-medium text-gray-900 truncate max-w-full">
+                  {selectedFile ? selectedFile.name : 'Hacer clic para seleccionar archivo'}
+                </span>
+                <span className="text-xs lg:text-sm text-gray-500 mt-2">
+                  Formatos soportados: JPG, PNG, PDF, TIFF, BMP
+                </span>
+              </label>
+            </div>
+            
+            {selectedFile && (
+              <div className="mt-4 flex justify-center">
+                <button
+                  onClick={handleProcessOCR}
+                  disabled={isProcessing}
+                  className="btn btn-primary w-full sm:w-auto"
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Procesando...
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="h-4 w-4 mr-2" />
+                      Procesar con OCR
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
       {/* Paso 2: Resultados del OCR */}
       {ocrResult && (
