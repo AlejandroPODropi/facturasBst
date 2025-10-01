@@ -327,13 +327,39 @@ Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
 - **Arquitectura**: FastAPI + React
 - **DevOps**: Google Cloud Platform
 
+## 🌐 URLs de Producción
+
+### 🎉 Última Actualización: Diseño Responsive (v2.0.0)
+**Fecha:** 1 de Octubre de 2025  
+**Estado:** ✅ **DESPLEGADO EXITOSAMENTE**
+
+- **Frontend:** https://frontend-493189429371.us-central1.run.app
+- **Backend:** https://backend-493189429371.us-central1.run.app
+- **API Docs:** https://backend-493189429371.us-central1.run.app/docs
+- **Health Check:** https://backend-493189429371.us-central1.run.app/health
+
+### 📱 Características Responsive Implementadas
+La aplicación ahora incluye **diseño completamente responsive** optimizado para:
+- 📱 **Móviles** (< 640px): Sidebar colapsable, vista de tarjetas
+- 📱 **Tablets** (640px - 1024px): Layout adaptativo, tablas optimizadas  
+- 💻 **Desktop** (> 1024px): Vista completa con sidebar fijo
+
+**Mejoras implementadas:**
+- ✅ Sidebar colapsable con hamburger menu
+- ✅ Formularios touch-friendly (inputs ≥44px)
+- ✅ Vista dual: tablas en desktop, tarjetas en móviles
+- ✅ Dashboard con grids adaptativos
+- ✅ Navegación optimizada para todos los dispositivos
+
+**Ver documentación completa:** [`documentos/DESPLEGUE_RESPONSIVE_COMPLETO.md`](documentos/DESPLEGUE_RESPONSIVE_COMPLETO.md)
+
 ## 📞 Soporte
 
 Para soporte técnico o preguntas:
 - Crear issue en GitHub
-- Revisar documentación en `/docs`
+- Revisar documentación en `/documentos`
 - Consultar troubleshooting guide
 
 ---
 
-**Control de Facturas Boosting** - Sistema profesional de gestión de facturas con tecnología de vanguardia.
+**Control de Facturas Boosting** - Sistema profesional de gestión de facturas con tecnología de vanguardia y diseño responsive.
