@@ -72,9 +72,9 @@ export function CreateInvoice() {
   }
 
   return (
-    <div className="space-y-4 lg:space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <div>
-        <h1 className="text-xl lg:text-2xl font-bold text-gray-900">Nueva Factura</h1>
+        <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900">Nueva Factura</h1>
         <p className="mt-1 text-sm text-gray-500">
           Registra una nueva factura en el sistema
         </p>
@@ -82,11 +82,12 @@ export function CreateInvoice() {
 
       <div className="card">
         <div className="card-header">
-          <h3 className="text-base lg:text-lg font-medium text-gray-900">Información de la Factura</h3>
+          <h3 className="text-base md:text-lg font-medium text-gray-900">Información de la Factura</h3>
         </div>
         <div className="card-content">
-          <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6">
-            <div className="grid grid-cols-1 gap-4 lg:gap-6 lg:grid-cols-2">
+          <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+            {/* Mobile-first: 1 columna en móvil, 2 en desktop */}
+            <div className="grid grid-cols-1 gap-4 md:gap-6 md:grid-cols-2">
               <div>
                 <label htmlFor="date" className="block text-sm font-medium text-gray-700">
                   Fecha de la Factura *
@@ -260,18 +261,19 @@ export function CreateInvoice() {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3 pt-4">
+            {/* Botones responsive: full-width en móvil, inline en desktop */}
+            <div className="flex flex-col md:flex-row justify-end space-y-3 md:space-y-0 md:space-x-3 pt-4">
               <button
                 type="button"
                 onClick={() => navigate('/invoices')}
-                className="btn btn-secondary w-full sm:w-auto"
+                className="btn-mobile btn-secondary w-full md:w-auto"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={createInvoiceMutation.isLoading}
-                className="btn btn-primary w-full sm:w-auto"
+                className="btn-mobile btn-primary w-full md:w-auto"
               >
                 {createInvoiceMutation.isLoading ? (
                   'Guardando...'

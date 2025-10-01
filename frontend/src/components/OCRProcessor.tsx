@@ -164,18 +164,18 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
   }
 
   return (
-    <div className="space-y-4 lg:space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <div className="card">
         <div className="card-header">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-lg lg:text-xl font-bold text-gray-900 flex items-center">
-              <FileText className="h-5 w-5 lg:h-6 lg:w-6 mr-2 text-blue-600" />
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <h2 className="text-lg md:text-xl font-bold text-gray-900 flex items-center">
+              <FileText className="h-5 w-5 md:h-6 md:w-6 mr-2 text-blue-600" />
               Procesar Factura con OCR
             </h2>
             {onCancel && (
               <button
                 onClick={onCancel}
-                className="text-gray-400 hover:text-gray-600 self-end sm:self-auto mt-2 sm:mt-0"
+                className="btn-mobile text-gray-400 hover:text-gray-600 self-end md:self-auto mt-2 md:mt-0"
               >
                 <X className="h-6 w-6" />
               </button>
@@ -216,7 +216,7 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
                 <button
                   onClick={handleProcessOCR}
                   disabled={isProcessing}
-                  className="btn btn-primary w-full sm:w-auto"
+                  className="btn-mobile btn-primary w-full md:w-auto"
                 >
                   {isProcessing ? (
                     <>
@@ -509,7 +509,7 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
       ) : null}
 
       {/* Mensajes de error */}
-      {processOCRMutation.error && (
+      {processOCRMutation.error ? (
         <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex items-center">
             <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
@@ -518,9 +518,9 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
             </span>
           </div>
         </div>
-      )}
+      ) : null}
 
-      {createInvoiceMutation.error && (
+      {createInvoiceMutation.error ? (
         <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex items-center">
             <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
@@ -529,7 +529,7 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
             </span>
           </div>
         </div>
-      )}
+      ) : null}
         </div>
       </div>
     </div>

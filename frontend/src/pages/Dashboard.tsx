@@ -108,26 +108,26 @@ export function Dashboard() {
   })) || []
 
   return (
-    <div className="space-y-4 lg:space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <div>
-        <h1 className="text-xl lg:text-2xl font-bold text-gray-900">Dashboard</h1>
+        <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900">Dashboard</h1>
         <p className="mt-1 text-sm text-gray-500">
           Resumen del sistema de control de facturas
         </p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Stats Grid - Mobile: 1 col, Tablet: 2 cols, Desktop: 4 cols */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {stats.map((stat) => (
           <div key={stat.name} className="card">
             <div className="card-content">
               <div className="flex items-center">
-                <div className={`flex-shrink-0 rounded-md p-2 lg:p-3 ${stat.bgColor}`}>
-                  <stat.icon className={`h-5 w-5 lg:h-6 lg:w-6 ${stat.color}`} />
+                <div className={`flex-shrink-0 rounded-md p-3 ${stat.bgColor}`}>
+                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
                 </div>
-                <div className="ml-3 lg:ml-4 min-w-0 flex-1">
-                  <p className="text-xs lg:text-sm font-medium text-gray-500 truncate">{stat.name}</p>
-                  <p className="text-lg lg:text-2xl font-semibold text-gray-900 truncate">{stat.value}</p>
+                <div className="ml-4 min-w-0 flex-1">
+                  <p className="text-sm font-medium text-gray-500 truncate">{stat.name}</p>
+                  <p className="text-xl md:text-2xl font-semibold text-gray-900 truncate">{stat.value}</p>
                 </div>
               </div>
             </div>
@@ -135,18 +135,18 @@ export function Dashboard() {
         ))}
       </div>
 
-      {/* Status Stats */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Status Stats - Mobile: 1 col, Tablet: 2 cols, Desktop: 4 cols */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {statusStats.map((stat) => (
           <div key={stat.name} className="card">
             <div className="card-content">
               <div className="flex items-center">
-                <div className={`flex-shrink-0 rounded-md p-2 lg:p-3 ${stat.bgColor}`}>
-                  <stat.icon className={`h-5 w-5 lg:h-6 lg:w-6 ${stat.color}`} />
+                <div className={`flex-shrink-0 rounded-md p-3 ${stat.bgColor}`}>
+                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
                 </div>
-                <div className="ml-3 lg:ml-4 min-w-0 flex-1">
-                  <p className="text-xs lg:text-sm font-medium text-gray-500 truncate">{stat.name}</p>
-                  <p className="text-lg lg:text-2xl font-semibold text-gray-900 truncate">{stat.value}</p>
+                <div className="ml-4 min-w-0 flex-1">
+                  <p className="text-sm font-medium text-gray-500 truncate">{stat.name}</p>
+                  <p className="text-xl md:text-2xl font-semibold text-gray-900 truncate">{stat.value}</p>
                 </div>
               </div>
             </div>
@@ -154,18 +154,18 @@ export function Dashboard() {
         ))}
       </div>
 
-      {/* Métricas de rendimiento */}
+      {/* Métricas de rendimiento - Mobile: 1 col, Tablet: 2 cols, Desktop: 3 cols */}
       {dashboardStats?.validation_performance && (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           <div className="card">
             <div className="card-content">
               <div className="flex items-center">
-                <div className="flex-shrink-0 rounded-md p-2 lg:p-3 bg-purple-100">
-                  <Activity className="h-5 w-5 lg:h-6 lg:w-6 text-purple-600" />
+                <div className="flex-shrink-0 rounded-md p-3 bg-purple-100">
+                  <Activity className="h-6 w-6 text-purple-600" />
                 </div>
-                <div className="ml-3 lg:ml-4 min-w-0 flex-1">
-                  <p className="text-xs lg:text-sm font-medium text-gray-500 truncate">Tasa de Validación</p>
-                  <p className="text-lg lg:text-2xl font-semibold text-gray-900 truncate">
+                <div className="ml-4 min-w-0 flex-1">
+                  <p className="text-sm font-medium text-gray-500 truncate">Tasa de Validación</p>
+                  <p className="text-xl md:text-2xl font-semibold text-gray-900 truncate">
                     {dashboardStats.validation_performance.validation_rate}%
                   </p>
                 </div>
@@ -176,12 +176,12 @@ export function Dashboard() {
           <div className="card">
             <div className="card-content">
               <div className="flex items-center">
-                <div className="flex-shrink-0 rounded-md p-2 lg:p-3 bg-indigo-100">
-                  <Clock className="h-5 w-5 lg:h-6 lg:w-6 text-indigo-600" />
+                <div className="flex-shrink-0 rounded-md p-3 bg-indigo-100">
+                  <Clock className="h-6 w-6 text-indigo-600" />
                 </div>
-                <div className="ml-3 lg:ml-4 min-w-0 flex-1">
-                  <p className="text-xs lg:text-sm font-medium text-gray-500 truncate">Tiempo Promedio</p>
-                  <p className="text-lg lg:text-2xl font-semibold text-gray-900 truncate">
+                <div className="ml-4 min-w-0 flex-1">
+                  <p className="text-sm font-medium text-gray-500 truncate">Tiempo Promedio</p>
+                  <p className="text-xl md:text-2xl font-semibold text-gray-900 truncate">
                     {dashboardStats.validation_performance.avg_validation_time_hours}h
                   </p>
                 </div>
@@ -189,15 +189,15 @@ export function Dashboard() {
             </div>
           </div>
           
-          <div className="card sm:col-span-2 lg:col-span-1">
+          <div className="card md:col-span-2 lg:col-span-1">
             <div className="card-content">
               <div className="flex items-center">
-                <div className="flex-shrink-0 rounded-md p-2 lg:p-3 bg-teal-100">
-                  <CheckCircle className="h-5 w-5 lg:h-6 lg:w-6 text-teal-600" />
+                <div className="flex-shrink-0 rounded-md p-3 bg-teal-100">
+                  <CheckCircle className="h-6 w-6 text-teal-600" />
                 </div>
-                <div className="ml-3 lg:ml-4 min-w-0 flex-1">
-                  <p className="text-xs lg:text-sm font-medium text-gray-500 truncate">Total Validadas</p>
-                  <p className="text-lg lg:text-2xl font-semibold text-gray-900 truncate">
+                <div className="ml-4 min-w-0 flex-1">
+                  <p className="text-sm font-medium text-gray-500 truncate">Total Validadas</p>
+                  <p className="text-xl md:text-2xl font-semibold text-gray-900 truncate">
                     {dashboardStats.validation_performance.total_validated}
                   </p>
                 </div>
@@ -240,17 +240,17 @@ export function Dashboard() {
         isLoading={statsLoading}
       />
 
-      {/* Recent Invoices */}
+      {/* Recent Invoices - Vista dual responsive */}
       <div className="card">
         <div className="card-header">
-          <h3 className="text-base lg:text-lg font-medium text-gray-900">Facturas Recientes</h3>
+          <h3 className="text-base md:text-lg font-medium text-gray-900">Facturas Recientes</h3>
         </div>
         <div className="card-content">
           {invoices.length === 0 ? (
             <p className="text-gray-500 text-center py-4">No hay facturas registradas</p>
           ) : (
             <>
-              {/* Desktop Table */}
+              {/* Desktop Table - Solo visible en ≥1024px */}
               <div className="hidden lg:block overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
@@ -302,7 +302,7 @@ export function Dashboard() {
                 </table>
               </div>
 
-              {/* Mobile Cards */}
+              {/* Mobile/Tablet Cards - Visible en <1024px */}
               <div className="lg:hidden space-y-3">
                 {invoices.slice(0, 5).map((invoice) => (
                   <div key={invoice.id} className="bg-gray-50 rounded-lg p-4">
