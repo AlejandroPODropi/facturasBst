@@ -557,8 +557,9 @@ async def debug_emails(
         gmail_service = RobustGmailService()
         
         # Autenticar con Gmail
-        if not gmail_service.authenticate():
-            return {"error": "No se pudo autenticar con Gmail API"}
+        auth_result = gmail_service.authenticate()
+        if not auth_result.get('success', False):
+            return {"error": f"No se pudo autenticar con Gmail API: {auth_result.get('error_message', 'Error desconocido')}"}
         
         # Buscar correos
         result = gmail_service.search_emails_safe(query=query, max_results=limit)
