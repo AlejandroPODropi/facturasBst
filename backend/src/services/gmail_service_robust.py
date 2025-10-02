@@ -127,8 +127,16 @@ class RobustGmailService:
                         flow = InstalledAppFlow.from_client_secrets_file(
                             'credentials.json', SCOPES
                         )
-                        self.credentials = flow.run_local_server(port=0)
-                        logger.info("Nueva autorización completada")
+                        # En producción, usar flujo sin navegador
+                        if os.getenv('ENVIRONMENT') == 'production':
+                            # Para producción, necesitamos un token pre-autorizado
+                            result['error_message'] = "Autenticación requerida. Use el endpoint /auth/authenticate desde el frontend."
+                            result['requires_setup'] = True
+                            return result
+                        else:
+                            # Para desarrollo local, usar navegador
+                            self.credentials = flow.run_local_server(port=0)
+                            logger.info("Nueva autorización completada")
                     except Exception as flow_error:
                         result['error_message'] = f"Error en autorización: {str(flow_error)}"
                         return result

@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, 
 from sqlalchemy.orm import Session
 from typing import List, Dict, Any, Optional
 import logging
+import os
 
 from src.database import get_db
 from src.services.gmail_service_robust import RobustGmailService
@@ -79,6 +80,99 @@ async def authenticate_gmail():
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error en autenticación: {str(e)}"
+        )
+
+
+@router.get("/auth/url")
+async def get_auth_url():
+    """
+    Obtener URL de autorización para Gmail API.
+    
+    Returns:
+        Dict con URL de autorización
+    """
+    try:
+        from google_auth_oauthlib.flow import InstalledAppFlow
+        
+        # Verificar que existe credentials.json
+        if not os.path.exists('credentials.json'):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Archivo credentials.json no encontrado"
+            )
+        
+        # Crear flujo de autorización
+        flow = InstalledAppFlow.from_client_secrets_file(
+            'credentials.json', 
+            ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.modify']
+        )
+        
+        # Generar URL de autorización
+        auth_url, _ = flow.authorization_url(
+            access_type='offline',
+            include_granted_scopes='true'
+        )
+        
+        return {
+            "success": True,
+            "auth_url": auth_url,
+            "message": "Visita la URL para autorizar la aplicación"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error generando URL de autorización: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error generando URL de autorización: {str(e)}"
+        )
+
+
+@router.post("/auth/callback")
+async def handle_auth_callback(code: str = Query(..., description="Código de autorización")):
+    """
+    Manejar callback de autorización de Gmail API.
+    
+    Args:
+        code: Código de autorización recibido de Google
+        
+    Returns:
+        Dict con resultado de autorización
+    """
+    try:
+        from google_auth_oauthlib.flow import InstalledAppFlow
+        
+        # Verificar que existe credentials.json
+        if not os.path.exists('credentials.json'):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Archivo credentials.json no encontrado"
+            )
+        
+        # Crear flujo de autorización
+        flow = InstalledAppFlow.from_client_secrets_file(
+            'credentials.json', 
+            ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.modify']
+        )
+        
+        # Intercambiar código por token
+        flow.fetch_token(code=code)
+        
+        # Guardar credenciales
+        credentials = flow.credentials
+        with open('token.json', 'w') as token_file:
+            token_file.write(credentials.to_json())
+        
+        return {
+            "success": True,
+            "message": "Autorización exitosa. Token guardado.",
+            "authenticated": True
+        }
+        
+    except Exception as e:
+        logger.error(f"Error en callback de autorización: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error en callback de autorización: {str(e)}"
         )
 
 

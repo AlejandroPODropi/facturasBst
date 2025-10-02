@@ -49,6 +49,23 @@ export function GmailIntegration() {
     }
   )
 
+  // Mutación para obtener URL de autorización
+  const getAuthUrlMutation = useMutation(
+    () => dashboardApi.getGmailAuthUrl(),
+    {
+      onSuccess: (data) => {
+        if (data.auth_url) {
+          // Abrir URL de autorización en nueva ventana
+          window.open(data.auth_url, '_blank', 'width=600,height=600')
+        }
+      },
+      onError: (error) => {
+        console.error('Error obteniendo URL de autorización:', error)
+        alert('Error obteniendo URL de autorización. Por favor, inténtalo de nuevo.')
+      }
+    }
+  )
+
   // Mutación para procesar facturas
   const processInvoicesMutation = useMutation(
     (limit: number) => dashboardApi.processGmailInvoices(limit),
@@ -68,16 +85,6 @@ export function GmailIntegration() {
     }
   )
 
-  // Mutación para autenticar
-  const authenticateMutation = useMutation(
-    () => dashboardApi.authenticateGmail(),
-    {
-      onSuccess: () => {
-        refetchAuth()
-        refetchStats()
-      },
-    }
-  )
 
   const handleProcessInvoices = async () => {
     setIsProcessing(true)
@@ -85,7 +92,7 @@ export function GmailIntegration() {
   }
 
   const handleAuthenticate = () => {
-    authenticateMutation.mutate()
+    getAuthUrlMutation.mutate()
   }
 
   const handleRefreshStats = () => {
@@ -137,7 +144,7 @@ export function GmailIntegration() {
               <button
                 onClick={handleAuthenticate}
                 className="btn btn-primary"
-                disabled={authenticateMutation.isLoading}
+                disabled={getAuthUrlMutation.isLoading}
               >
                 <Settings className="h-4 w-4 mr-2" />
                 Conectar Gmail
