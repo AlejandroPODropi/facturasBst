@@ -13,7 +13,7 @@ from src.database import get_db
 from src.services.gmail_service_robust import RobustGmailService
 from src.schemas import MessageResponse
 
-router = APIRouter(prefix="/gmail", tags=["gmail"])
+router = APIRouter(tags=["gmail"])
 
 # Configuración de logging
 logging.basicConfig(level=logging.INFO)
