@@ -178,6 +178,11 @@ export const gmailApi = {
     return response.data
   },
 
+  getSimpleAuthUrl: async (): Promise<any> => {
+    const response = await api.get('/gmail/auth/simple')
+    return response.data
+  },
+
   searchEmails: async (query: string = "has:attachment newer_than:7d", maxResults: number = 10): Promise<any> => {
     const response = await api.get(`/gmail/emails/search?query=${encodeURIComponent(query)}&max_results=${maxResults}`)
     return response.data
@@ -269,6 +274,7 @@ export const dashboardApi = {
   getGmailAuthStatus: gmailApi.getAuthStatus,
   authenticateGmail: gmailApi.authenticate,
   getGmailAuthUrl: gmailApi.getAuthUrl,
+  getGmailSimpleAuthUrl: gmailApi.getSimpleAuthUrl,
   processGmailInvoices: gmailApi.processInvoices,
 }
 

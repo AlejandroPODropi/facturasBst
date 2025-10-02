@@ -110,7 +110,8 @@ async def get_auth_url():
         # Generar URL de autorización
         auth_url, _ = flow.authorization_url(
             access_type='offline',
-            include_granted_scopes='true'
+            include_granted_scopes='true',
+            redirect_uri='urn:ietf:wg:oauth:2.0:oob'  # Para aplicaciones instaladas
         )
         
         return {
@@ -173,6 +174,56 @@ async def handle_auth_callback(code: str = Query(..., description="Código de au
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error en callback de autorización: {str(e)}"
+        )
+
+
+@router.get("/auth/simple")
+async def get_simple_auth_url():
+    """
+    Obtener URL de autorización simple para Gmail API (sin redirect_uri).
+    
+    Returns:
+        Dict con URL de autorización y instrucciones
+    """
+    try:
+        from google_auth_oauthlib.flow import InstalledAppFlow
+        
+        # Verificar que existe credentials.json
+        if not os.path.exists('credentials.json'):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Archivo credentials.json no encontrado"
+            )
+        
+        # Crear flujo de autorización
+        flow = InstalledAppFlow.from_client_secrets_file(
+            'credentials.json', 
+            ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.modify']
+        )
+        
+        # Generar URL de autorización sin redirect_uri
+        auth_url, _ = flow.authorization_url(
+            access_type='offline',
+            include_granted_scopes='true'
+        )
+        
+        return {
+            "success": True,
+            "auth_url": auth_url,
+            "message": "Visita la URL para autorizar la aplicación. Copia el código de autorización y úsalo en /auth/callback",
+            "instructions": [
+                "1. Visita la URL de autorización",
+                "2. Autoriza la aplicación en Google",
+                "3. Copia el código de autorización que aparece",
+                "4. Usa el endpoint /auth/callback con el código"
+            ]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error generando URL de autorización simple: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error generando URL de autorización simple: {str(e)}"
         )
 
 

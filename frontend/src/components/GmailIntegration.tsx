@@ -49,22 +49,24 @@ export function GmailIntegration() {
     }
   )
 
-  // Mutación para obtener URL de autorización
-  const getAuthUrlMutation = useMutation(
-    () => dashboardApi.getGmailAuthUrl(),
-    {
-      onSuccess: (data) => {
-        if (data.auth_url) {
-          // Abrir URL de autorización en nueva ventana
-          window.open(data.auth_url, '_blank', 'width=600,height=600')
+    // Mutación para obtener URL de autorización simple
+    const getSimpleAuthUrlMutation = useMutation(
+        () => dashboardApi.getGmailSimpleAuthUrl(),
+        {
+            onSuccess: (data) => {
+                if (data.auth_url) {
+                    // Mostrar instrucciones y abrir URL
+                    const instructions = data.instructions?.join('\n') || ''
+                    alert(`Instrucciones:\n${instructions}\n\nSe abrirá la URL de autorización.`)
+                    window.open(data.auth_url, '_blank', 'width=600,height=600')
+                }
+            },
+            onError: (error) => {
+                console.error('Error obteniendo URL de autorización:', error)
+                alert('Error obteniendo URL de autorización. Por favor, inténtalo de nuevo.')
+            }
         }
-      },
-      onError: (error) => {
-        console.error('Error obteniendo URL de autorización:', error)
-        alert('Error obteniendo URL de autorización. Por favor, inténtalo de nuevo.')
-      }
-    }
-  )
+    )
 
   // Mutación para procesar facturas
   const processInvoicesMutation = useMutation(
@@ -91,9 +93,9 @@ export function GmailIntegration() {
     processInvoicesMutation.mutate(10)
   }
 
-  const handleAuthenticate = () => {
-    getAuthUrlMutation.mutate()
-  }
+    const handleAuthenticate = () => {
+        getSimpleAuthUrlMutation.mutate()
+    }
 
   const handleRefreshStats = () => {
     refetchStats()
@@ -140,16 +142,16 @@ export function GmailIntegration() {
               <RefreshCw className="h-4 w-4 mr-2" />
               Actualizar
             </button>
-            {!authStatus?.authenticated && (
-              <button
+        {!authStatus?.authenticated && (
+            <button
                 onClick={handleAuthenticate}
                 className="btn btn-primary"
-                disabled={getAuthUrlMutation.isLoading}
-              >
+                disabled={getSimpleAuthUrlMutation.isLoading}
+            >
                 <Settings className="h-4 w-4 mr-2" />
                 Conectar Gmail
-              </button>
-            )}
+            </button>
+        )}
           </div>
         </div>
       </div>
