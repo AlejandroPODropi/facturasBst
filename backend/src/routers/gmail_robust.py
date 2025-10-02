@@ -586,12 +586,12 @@ async def debug_emails(
             "emails": debug_emails
         }
         
-        except Exception as e:
-            logger.error(f"Error en debug de emails: {str(e)}")
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Error en debug de emails: {str(e)}"
-            )
+    except Exception as e:
+        logger.error(f"Error en debug de emails: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error en debug de emails: {str(e)}"
+        )
 
 
 @router.post("/migrate-to-secret-manager")
