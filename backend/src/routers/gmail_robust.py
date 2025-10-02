@@ -534,3 +534,59 @@ async def process_invoices_sync(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error procesando facturas: {str(e)}"
         )
+
+
+@router.get("/debug/emails")
+async def debug_emails(
+    limit: int = 10,
+    query: str = "has:attachment newer_than:7d"
+):
+    """
+    Endpoint de debug para ver qué correos encuentra Gmail.
+    
+    Args:
+        limit: Número máximo de correos a mostrar
+        query: Query de búsqueda de Gmail
+        
+    Returns:
+        Lista de correos encontrados con detalles
+    """
+    try:
+        from src.services.gmail_service import GmailService
+        
+        gmail_service = GmailService()
+        
+        # Autenticar con Gmail
+        if not gmail_service.authenticate():
+            return {"error": "No se pudo autenticar con Gmail API"}
+        
+        # Buscar correos
+        emails = gmail_service.search_emails(query=query, max_results=limit)
+        
+        # Preparar datos para debug
+        debug_emails = []
+        for email in emails:
+            debug_email = {
+                "id": email.get('id', ''),
+                "subject": email.get('subject', ''),
+                "from": email.get('from', ''),
+                "date": email.get('date', ''),
+                "has_attachments": len(email.get('attachments', [])) > 0,
+                "attachments_count": len(email.get('attachments', [])),
+                "attachments_types": [att.get('mime_type', '') for att in email.get('attachments', [])],
+                "body_preview": email.get('body', '')[:200] + "..." if len(email.get('body', '')) > 200 else email.get('body', '')
+            }
+            debug_emails.append(debug_email)
+        
+        return {
+            "query_used": query,
+            "total_emails_found": len(emails),
+            "emails": debug_emails
+        }
+        
+    except Exception as e:
+        logger.error(f"Error en debug de emails: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error en debug de emails: {str(e)}"
+        )
