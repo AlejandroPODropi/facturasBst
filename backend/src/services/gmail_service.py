@@ -86,6 +86,7 @@ class GmailService:
         try:
             if not self.service:
                 if not self.authenticate():
+                    logger.error("No se pudo autenticar con Gmail API")
                     return []
             
             # Buscar mensajes
