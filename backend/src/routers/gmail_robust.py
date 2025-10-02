@@ -201,10 +201,11 @@ async def get_simple_auth_url():
             ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.modify']
         )
         
-        # Generar URL de autorización sin redirect_uri
+        # Generar URL de autorización con redirect_uri específico
         auth_url, _ = flow.authorization_url(
             access_type='offline',
-            include_granted_scopes='true'
+            include_granted_scopes='true',
+            redirect_uri='urn:ietf:wg:oauth:2.0:oob'  # Para aplicaciones instaladas
         )
         
         return {
@@ -224,6 +225,57 @@ async def get_simple_auth_url():
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error generando URL de autorización simple: {str(e)}"
+        )
+
+
+@router.get("/auth/manual")
+async def get_manual_auth_instructions():
+    """
+    Obtener instrucciones para autorización manual de Gmail API.
+    
+    Returns:
+        Dict con instrucciones detalladas para autorización manual
+    """
+    try:
+        # Verificar que existe credentials.json
+        if not os.path.exists('credentials.json'):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Archivo credentials.json no encontrado"
+            )
+        
+        # Leer el archivo de credenciales para obtener el client_id
+        import json
+        with open('credentials.json', 'r') as f:
+            credentials_data = json.load(f)
+        
+        client_id = credentials_data.get('installed', {}).get('client_id', 'CLIENT_ID_NOT_FOUND')
+        
+        # Construir URL de autorización manual
+        scopes = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.modify'
+        auth_url = f"https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={client_id}&scope={scopes}&access_type=offline&redirect_uri=urn:ietf:wg:oauth:2.0:oob"
+        
+        return {
+            "success": True,
+            "auth_url": auth_url,
+            "client_id": client_id,
+            "message": "Autorización manual de Gmail API",
+            "instructions": [
+                "1. Visita la URL de autorización proporcionada",
+                "2. Inicia sesión con tu cuenta de Google",
+                "3. Autoriza la aplicación 'Facturas BST'",
+                "4. Copia el código de autorización que aparece en la pantalla",
+                "5. Usa el endpoint POST /auth/callback con el código",
+                "6. El token se guardará automáticamente"
+            ],
+            "note": "Si ves un error de redirect_uri, necesitas configurar 'urn:ietf:wg:oauth:2.0:oob' en Google Cloud Console"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error generando instrucciones de autorización manual: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error generando instrucciones de autorización manual: {str(e)}"
         )
 
 

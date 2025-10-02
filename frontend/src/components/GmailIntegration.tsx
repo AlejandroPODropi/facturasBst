@@ -49,21 +49,22 @@ export function GmailIntegration() {
     }
   )
 
-    // Mutación para obtener URL de autorización simple
-    const getSimpleAuthUrlMutation = useMutation(
-        () => dashboardApi.getGmailSimpleAuthUrl(),
+    // Mutación para obtener instrucciones de autorización manual
+    const getManualAuthMutation = useMutation(
+        () => dashboardApi.getGmailManualAuthInstructions(),
         {
             onSuccess: (data) => {
                 if (data.auth_url) {
-                    // Mostrar instrucciones y abrir URL
+                    // Mostrar instrucciones detalladas
                     const instructions = data.instructions?.join('\n') || ''
-                    alert(`Instrucciones:\n${instructions}\n\nSe abrirá la URL de autorización.`)
+                    const note = data.note || ''
+                    alert(`Instrucciones para autorizar Gmail:\n\n${instructions}\n\n${note}\n\nSe abrirá la URL de autorización.`)
                     window.open(data.auth_url, '_blank', 'width=600,height=600')
                 }
             },
             onError: (error) => {
-                console.error('Error obteniendo URL de autorización:', error)
-                alert('Error obteniendo URL de autorización. Por favor, inténtalo de nuevo.')
+                console.error('Error obteniendo instrucciones de autorización:', error)
+                alert('Error obteniendo instrucciones de autorización. Por favor, inténtalo de nuevo.')
             }
         }
     )
@@ -94,7 +95,7 @@ export function GmailIntegration() {
   }
 
     const handleAuthenticate = () => {
-        getSimpleAuthUrlMutation.mutate()
+        getManualAuthMutation.mutate()
     }
 
   const handleRefreshStats = () => {
@@ -146,7 +147,7 @@ export function GmailIntegration() {
             <button
                 onClick={handleAuthenticate}
                 className="btn btn-primary"
-                disabled={getSimpleAuthUrlMutation.isLoading}
+                disabled={getManualAuthMutation.isLoading}
             >
                 <Settings className="h-4 w-4 mr-2" />
                 Conectar Gmail
