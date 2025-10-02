@@ -32,7 +32,7 @@ google-cloud-secret-manager==2.18.1
 # Procesamiento de archivos adjuntos
 PyPDF2==3.0.1
 python-magic==0.4.27
-Pillow==10.1.0
+Pillow==11.3.0
 
 # OCR para facturas físicas
 pytesseract==0.3.10
