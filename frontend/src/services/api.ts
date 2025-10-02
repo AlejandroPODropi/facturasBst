@@ -168,9 +168,14 @@ export const gmailApi = {
     return response.data
   },
 
-  authenticate: async (): Promise<any> => {
-    const response = await api.post('/gmail/auth/authenticate')
-    return response.data
+  authenticate: async (code?: string): Promise<any> => {
+    if (code) {
+      const response = await api.post(`/gmail/auth/callback?code=${encodeURIComponent(code)}`)
+      return response.data
+    } else {
+      const response = await api.post('/gmail/auth/authenticate')
+      return response.data
+    }
   },
 
   getAuthUrl: async (): Promise<any> => {

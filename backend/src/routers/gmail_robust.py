@@ -156,12 +156,26 @@ async def handle_auth_callback(code: str = Query(..., description="Código de au
         )
         
         # Intercambiar código por token
-        flow.fetch_token(code=code)
+        try:
+            flow.fetch_token(code=code)
+        except Exception as token_error:
+            logger.error(f"Error intercambiando código por token: {str(token_error)}")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Error intercambiando código por token: {str(token_error)}. El código puede haber expirado o ya fue usado."
+            )
         
         # Guardar credenciales
         credentials = flow.credentials
-        with open('token.json', 'w') as token_file:
-            token_file.write(credentials.to_json())
+        try:
+            with open('token.json', 'w') as token_file:
+                token_file.write(credentials.to_json())
+        except Exception as save_error:
+            logger.error(f"Error guardando token: {str(save_error)}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Error guardando token: {str(save_error)}"
+            )
         
         return {
             "success": True,

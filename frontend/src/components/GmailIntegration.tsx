@@ -9,6 +9,7 @@ import {
   Settings, 
   Download,
   Eye,
+  X,
   // Clock
 } from 'lucide-react'
 
@@ -28,6 +29,8 @@ interface ProcessedInvoice {
 
 export function GmailIntegration() {
   const [isProcessing, setIsProcessing] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [authCode, setAuthCode] = useState('')
   const [lastProcessed, setLastProcessed] = useState<ProcessedInvoice[]>([])
   const queryClient = useQueryClient()
 
@@ -55,16 +58,35 @@ export function GmailIntegration() {
         {
             onSuccess: (data) => {
                 if (data.auth_url) {
-                    // Mostrar instrucciones detalladas
+                    // Mostrar instrucciones detalladas y abrir modal
                     const instructions = data.instructions?.join('\n') || ''
                     const note = data.note || ''
                     alert(`Instrucciones para autorizar Gmail:\n\n${instructions}\n\n${note}\n\nSe abrirá la URL de autorización.`)
                     window.open(data.auth_url, '_blank', 'width=600,height=600')
+                    setShowAuthModal(true)
                 }
             },
             onError: (error) => {
                 console.error('Error obteniendo instrucciones de autorización:', error)
                 alert('Error obteniendo instrucciones de autorización. Por favor, inténtalo de nuevo.')
+            }
+        }
+    )
+
+    // Mutación para procesar el código de autorización
+    const authCallbackMutation = useMutation(
+        (code: string) => dashboardApi.authenticateGmail(code),
+        {
+            onSuccess: (data) => {
+                alert('¡Autorización exitosa! Gmail está ahora conectado.')
+                setShowAuthModal(false)
+                setAuthCode('')
+                queryClient.invalidateQueries(['gmail-auth-status'])
+                queryClient.invalidateQueries(['gmail-stats'])
+            },
+            onError: (error) => {
+                console.error('Error en autorización:', error)
+                alert('Error en autorización. Por favor, verifica el código e inténtalo de nuevo.')
             }
         }
     )
@@ -96,6 +118,19 @@ export function GmailIntegration() {
 
     const handleAuthenticate = () => {
         getManualAuthMutation.mutate()
+    }
+
+    const handleSubmitAuthCode = () => {
+        if (authCode.trim()) {
+            authCallbackMutation.mutate(authCode.trim())
+        } else {
+            alert('Por favor, ingresa el código de autorización.')
+        }
+    }
+
+    const handleCloseAuthModal = () => {
+        setShowAuthModal(false)
+        setAuthCode('')
     }
 
   const handleRefreshStats = () => {
@@ -324,6 +359,59 @@ export function GmailIntegration() {
           </p>
         </div>
       </div>
+
+      {/* Modal para código de autorización */}
+      {showAuthModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium text-gray-900">Código de Autorización</h3>
+              <button
+                onClick={handleCloseAuthModal}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 mb-3">
+                Después de autorizar la aplicación en Google, copia el código de autorización que aparece en la pantalla y pégalo aquí:
+              </p>
+              <textarea
+                value={authCode}
+                onChange={(e) => setAuthCode(e.target.value)}
+                placeholder="Pega aquí el código de autorización..."
+                className="w-full p-3 border border-gray-300 rounded-md resize-none"
+                rows={3}
+              />
+            </div>
+            
+            <div className="flex space-x-3">
+              <button
+                onClick={handleCloseAuthModal}
+                className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSubmitAuthCode}
+                disabled={authCallbackMutation.isLoading || !authCode.trim()}
+                className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {authCallbackMutation.isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Procesando...
+                  </>
+                ) : (
+                  'Autorizar'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
