@@ -11,6 +11,7 @@ import os
 
 from src.database import get_db
 from src.services.gmail_service_robust import RobustGmailService
+from src.services.gmail_service import process_gmail_invoices
 from src.schemas import MessageResponse
 
 router = APIRouter(tags=["gmail"])
@@ -503,3 +504,33 @@ async def get_setup_help():
             "api_not_enabled": "Habilita Gmail API en Google Cloud Console"
         }
     }
+
+
+@router.post("/process-invoices/sync")
+async def process_invoices_sync(
+    limit: int = 10,
+    db: Session = Depends(get_db)
+):
+    """
+    Procesar correos de Gmail para extraer facturas de forma síncrona.
+    
+    Args:
+        limit: Número máximo de correos a procesar
+        
+    Returns:
+        Lista de facturas procesadas
+    """
+    try:
+        processed_invoices = process_gmail_invoices(db, limit)
+        
+        return {
+            "message": f"Procesamiento completado. {len(processed_invoices)} facturas procesadas",
+            "processed_invoices": processed_invoices,
+            "total_processed": len(processed_invoices)
+        }
+    except Exception as e:
+        logger.error(f"Error procesando facturas: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error procesando facturas: {str(e)}"
+        )
