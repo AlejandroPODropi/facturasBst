@@ -8,7 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
 
-from src.routers import invoices, users, dashboard, ocr, gmail
+from src.routers import invoices, users, dashboard, ocr
+# from src.routers import gmail  # Deshabilitado temporalmente por problemas en pruebas
 from src.database import engine
 from src.models import Base
 
@@ -53,7 +54,7 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
 app.include_router(invoices.router, prefix="/api/v1/invoices", tags=["invoices"])
 app.include_router(dashboard.router, prefix="/api/v1/dashboard", tags=["dashboard"])
-app.include_router(gmail.router, prefix="/api/v1/gmail", tags=["gmail"])
+# app.include_router(gmail.router, prefix="/api/v1/gmail", tags=["gmail"])  # Deshabilitado temporalmente
 app.include_router(ocr.router, prefix="/api/v1", tags=["ocr"])
 
 

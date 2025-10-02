@@ -95,8 +95,7 @@ export enum PaymentMethod {
   CASH = 'efectivo',
   TARJETA_BST = 'tarjeta_bst',
   TARJETA_PERSONAL = 'tarjeta_personal',
-  TRANSFER = 'transferencia',
-  CHECK = 'cheque'
+  TRANSFER = 'transferencia'
 }
 
 export enum ExpenseCategory {
@@ -123,10 +122,9 @@ export const USER_ROLE_LABELS: Record<UserRole, string> = {
 
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   [PaymentMethod.CASH]: 'Efectivo',
-  [PaymentMethod.TARJETA_BST]: 'Tarjeta Boosting',
+  [PaymentMethod.TARJETA_BST]: 'Tarjeta BST',
   [PaymentMethod.TARJETA_PERSONAL]: 'Tarjeta Personal',
-  [PaymentMethod.TRANSFER]: 'Transferencia',
-  [PaymentMethod.CHECK]: 'Cheque'
+  [PaymentMethod.TRANSFER]: 'Transferencia'
 }
 
 export const EXPENSE_CATEGORY_LABELS: Record<ExpenseCategory, string> = {

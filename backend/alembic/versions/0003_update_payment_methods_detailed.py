@@ -21,7 +21,7 @@ def upgrade() -> None:
     Actualizar el enum PaymentMethod para incluir opciones detalladas.
     """
     # Crear el nuevo enum con las opciones detalladas
-    op.execute("CREATE TYPE paymentmethod_new AS ENUM ('efectivo', 'tarjeta_bst', 'tarjeta_personal', 'transferencia', 'cheque')")
+    op.execute("CREATE TYPE paymentmethod_new AS ENUM ('efectivo', 'tarjeta_bst', 'tarjeta_personal', 'transferencia')")
     
     # Actualizar la columna para usar el nuevo enum
     op.execute("ALTER TABLE invoices ALTER COLUMN payment_method TYPE paymentmethod_new USING payment_method::text::paymentmethod_new")
@@ -38,7 +38,7 @@ def downgrade() -> None:
     Revertir a los métodos de pago originales.
     """
     # Crear el enum original
-    op.execute("CREATE TYPE paymentmethod_old AS ENUM ('efectivo', 'tarjeta', 'transferencia', 'cheque')")
+    op.execute("CREATE TYPE paymentmethod_old AS ENUM ('efectivo', 'tarjeta', 'transferencia')")
     
     # Actualizar la columna para usar el enum original
     # Mapear los nuevos valores a los originales

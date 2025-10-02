@@ -24,7 +24,6 @@ class PaymentMethod(str, enum.Enum):
     TARJETA_BST = "tarjeta_bst"
     TARJETA_PERSONAL = "tarjeta_personal"
     TRANSFER = "transferencia"
-    CHECK = "cheque"
 
 
 class ExpenseCategory(str, enum.Enum):
