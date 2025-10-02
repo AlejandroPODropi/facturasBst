@@ -552,9 +552,9 @@ async def debug_emails(
         Lista de correos encontrados con detalles
     """
     try:
-        from src.services.gmail_service import GmailService
+        from src.services.gmail_service_robust import RobustGmailService
         
-        gmail_service = GmailService()
+        gmail_service = RobustGmailService()
         
         # Autenticar con Gmail
         if not gmail_service.authenticate():
