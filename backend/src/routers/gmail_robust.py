@@ -155,14 +155,32 @@ async def handle_auth_callback(code: str = Query(..., description="Código de au
             ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.modify']
         )
         
+        # Configurar redirect_uri para aplicaciones instaladas
+        flow.redirect_uri = 'urn:ietf:wg:oauth:2.0:oob'
+        
         # Intercambiar código por token
         try:
             flow.fetch_token(code=code)
         except Exception as token_error:
-            logger.error(f"Error intercambiando código por token: {str(token_error)}")
+            error_msg = str(token_error)
+            logger.error(f"Error intercambiando código por token: {error_msg}")
+            
+            # Manejar errores específicos
+            if "invalid_grant" in error_msg:
+                if "Malformed auth code" in error_msg:
+                    detail = "El código de autorización está mal formateado. Por favor, obtén un nuevo código."
+                elif "expired" in error_msg.lower():
+                    detail = "El código de autorización ha expirado. Por favor, obtén un nuevo código."
+                else:
+                    detail = "Código de autorización inválido. Por favor, obtén un nuevo código."
+            elif "redirect_uri" in error_msg:
+                detail = "Error de configuración OAuth. El redirect_uri no está configurado correctamente."
+            else:
+                detail = f"Error en autorización: {error_msg}"
+            
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Error intercambiando código por token: {str(token_error)}. El código puede haber expirado o ya fue usado."
+                detail=detail
             )
         
         # Guardar credenciales

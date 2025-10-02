@@ -86,7 +86,8 @@ export function GmailIntegration() {
             },
             onError: (error) => {
                 console.error('Error en autorización:', error)
-                alert('Error en autorización. Por favor, verifica el código e inténtalo de nuevo.')
+                const errorMessage = error?.response?.data?.detail || 'Error en autorización. Por favor, verifica el código e inténtalo de nuevo.'
+                alert(`Error: ${errorMessage}`)
             }
         }
     )
