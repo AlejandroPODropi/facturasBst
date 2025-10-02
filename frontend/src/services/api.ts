@@ -96,10 +96,6 @@ export const invoicesApi = {
     await api.delete(`/invoices/${id}`)
   },
 
-  delete: async (id: number): Promise<void> => {
-    await api.delete(`/invoices/${id}`)
-  },
-
   export: async (filters: Partial<InvoiceFilters> = {}): Promise<ExportResponse> => {
     const response = await api.get('/invoices/export/excel', { params: filters })
     return response.data

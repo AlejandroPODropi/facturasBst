@@ -93,7 +93,8 @@ export enum UserRole {
 
 export enum PaymentMethod {
   CASH = 'efectivo',
-  CARD = 'tarjeta',
+  TARJETA_BST = 'tarjeta_bst',
+  TARJETA_PERSONAL = 'tarjeta_personal',
   TRANSFER = 'transferencia',
   CHECK = 'cheque'
 }
@@ -122,7 +123,8 @@ export const USER_ROLE_LABELS: Record<UserRole, string> = {
 
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   [PaymentMethod.CASH]: 'Efectivo',
-  [PaymentMethod.CARD]: 'Tarjeta',
+  [PaymentMethod.TARJETA_BST]: 'Tarjeta Boosting',
+  [PaymentMethod.TARJETA_PERSONAL]: 'Tarjeta Personal',
   [PaymentMethod.TRANSFER]: 'Transferencia',
   [PaymentMethod.CHECK]: 'Cheque'
 }

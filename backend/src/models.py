@@ -21,7 +21,8 @@ class UserRole(str, enum.Enum):
 class PaymentMethod(str, enum.Enum):
     """Métodos de pago disponibles."""
     CASH = "efectivo"
-    CARD = "tarjeta"
+    TARJETA_BST = "tarjeta_bst"
+    TARJETA_PERSONAL = "tarjeta_personal"
     TRANSFER = "transferencia"
     CHECK = "cheque"
 
