@@ -561,7 +561,8 @@ async def debug_emails(
             return {"error": "No se pudo autenticar con Gmail API"}
         
         # Buscar correos
-        emails = gmail_service.search_emails(query=query, max_results=limit)
+        result = gmail_service.search_emails_safe(query=query, max_results=limit)
+        emails = result.get('emails', [])
         
         # Preparar datos para debug
         debug_emails = []
