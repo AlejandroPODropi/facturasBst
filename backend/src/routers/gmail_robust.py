@@ -586,9 +586,97 @@ async def debug_emails(
             "emails": debug_emails
         }
         
+        except Exception as e:
+            logger.error(f"Error en debug de emails: {str(e)}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Error en debug de emails: {str(e)}"
+            )
+
+
+@router.post("/migrate-to-secret-manager")
+async def migrate_to_secret_manager():
+    """
+    Migrar credenciales y token de Gmail a Secret Manager.
+    
+    Returns:
+        Resultado de la migración
+    """
+    try:
+        from src.services.secret_manager import secret_manager_service
+        
+        # Verificar si Secret Manager está disponible
+        if not secret_manager_service.is_available():
+            return {
+                "success": False,
+                "error": "Secret Manager no está disponible. Verifica la configuración de Google Cloud."
+            }
+        
+        results = {
+            "credentials_migrated": False,
+            "token_migrated": False,
+            "errors": []
+        }
+        
+        # Migrar credenciales
+        if os.path.exists('credentials.json'):
+            try:
+                with open('credentials.json', 'r') as f:
+                    credentials_data = f.read()
+                
+                success = secret_manager_service.store_secret(
+                    "gmail-oauth-credentials",
+                    credentials_data,
+                    "Gmail OAuth Credentials para Facturas BST"
+                )
+                
+                if success:
+                    results["credentials_migrated"] = True
+                    logger.info("Credenciales migradas a Secret Manager")
+                else:
+                    results["errors"].append("Error migrando credenciales")
+                    
+            except Exception as e:
+                results["errors"].append(f"Error leyendo credentials.json: {str(e)}")
+        else:
+            results["errors"].append("Archivo credentials.json no encontrado")
+        
+        # Migrar token
+        if os.path.exists('token.json'):
+            try:
+                with open('token.json', 'r') as f:
+                    token_data = f.read()
+                
+                success = secret_manager_service.store_secret(
+                    "gmail-oauth-token",
+                    token_data,
+                    "Gmail OAuth Token para Facturas BST"
+                )
+                
+                if success:
+                    results["token_migrated"] = True
+                    logger.info("Token migrado a Secret Manager")
+                else:
+                    results["errors"].append("Error migrando token")
+                    
+            except Exception as e:
+                results["errors"].append(f"Error leyendo token.json: {str(e)}")
+        else:
+            logger.info("Archivo token.json no encontrado (esto es normal)")
+        
+        # Determinar éxito general
+        results["success"] = results["credentials_migrated"] and len(results["errors"]) == 0
+        
+        if results["success"]:
+            results["message"] = "Migración completada exitosamente"
+        else:
+            results["message"] = "Migración completada con errores"
+        
+        return results
+        
     except Exception as e:
-        logger.error(f"Error en debug de emails: {str(e)}")
+        logger.error(f"Error en migración a Secret Manager: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error en debug de emails: {str(e)}"
+            detail=f"Error en migración a Secret Manager: {str(e)}"
         )

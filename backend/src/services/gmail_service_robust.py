@@ -18,6 +18,7 @@ from googleapiclient.errors import HttpError
 
 from src.database import get_db
 from src.models import Invoice, User, InvoiceStatus, ExpenseCategory, PaymentMethod
+from src.services.secret_manager import secret_manager_service
 from sqlalchemy.orm import Session
 
 # Configuración de logging
@@ -29,6 +30,10 @@ SCOPES = [
     'https://www.googleapis.com/auth/gmail.readonly',
     'https://www.googleapis.com/auth/gmail.modify'
 ]
+
+# Nombres de secretos en Secret Manager
+GMAIL_TOKEN_SECRET_ID = "gmail-oauth-token"
+GMAIL_CREDENTIALS_SECRET_ID = "gmail-oauth-credentials"
 
 class RobustGmailService:
     """Servicio robusto para manejo de Gmail API con mejor manejo de errores."""
@@ -48,31 +53,61 @@ class RobustGmailService:
         config_status = {
             'credentials_file_exists': False,
             'token_file_exists': False,
+            'secret_manager_available': False,
+            'token_in_secret_manager': False,
+            'credentials_in_secret_manager': False,
             'is_configured': False,
             'error_message': None
         }
         
         try:
-            # Verificar archivo de credenciales
+            # Verificar Secret Manager
+            config_status['secret_manager_available'] = secret_manager_service.is_available()
+            
+            # Verificar credenciales en Secret Manager
+            if config_status['secret_manager_available']:
+                config_status['credentials_in_secret_manager'] = secret_manager_service.secret_exists(GMAIL_CREDENTIALS_SECRET_ID)
+                config_status['token_in_secret_manager'] = secret_manager_service.secret_exists(GMAIL_TOKEN_SECRET_ID)
+            
+            # Verificar archivo de credenciales local
             if os.path.exists('credentials.json'):
                 config_status['credentials_file_exists'] = True
             else:
-                config_status['error_message'] = "Archivo credentials.json no encontrado"
-                return config_status
+                # Si no hay archivo local, verificar si está en Secret Manager
+                if not config_status['credentials_in_secret_manager']:
+                    config_status['error_message'] = "Archivo credentials.json no encontrado y no está en Secret Manager"
+                    return config_status
             
-            # Verificar archivo de token
+            # Verificar archivo de token local
             if os.path.exists('token.json'):
                 config_status['token_file_exists'] = True
             
-            # Verificar que el archivo de credenciales sea válido
-            try:
-                with open('credentials.json', 'r') as f:
-                    credentials_data = json.load(f)
-                    if 'installed' not in credentials_data:
-                        config_status['error_message'] = "Formato de credentials.json inválido"
-                        return config_status
-            except json.JSONDecodeError:
-                config_status['error_message'] = "credentials.json no es un JSON válido"
+            # Verificar que las credenciales sean válidas
+            credentials_valid = False
+            
+            # Intentar desde archivo local
+            if config_status['credentials_file_exists']:
+                try:
+                    with open('credentials.json', 'r') as f:
+                        credentials_data = json.load(f)
+                        if 'installed' in credentials_data:
+                            credentials_valid = True
+                except json.JSONDecodeError:
+                    pass
+            
+            # Intentar desde Secret Manager si no es válido localmente
+            if not credentials_valid and config_status['credentials_in_secret_manager']:
+                try:
+                    credentials_json = secret_manager_service.retrieve_secret(GMAIL_CREDENTIALS_SECRET_ID)
+                    if credentials_json:
+                        credentials_data = json.loads(credentials_json)
+                        if 'installed' in credentials_data:
+                            credentials_valid = True
+                except Exception as e:
+                    logger.warning(f"Error validando credenciales desde Secret Manager: {e}")
+            
+            if not credentials_valid:
+                config_status['error_message'] = "Credenciales de Gmail no válidas"
                 return config_status
             
             config_status['is_configured'] = True
@@ -104,13 +139,28 @@ class RobustGmailService:
                 result['requires_setup'] = True
                 return result
             
-            # Verificar si ya tenemos credenciales válidas
-            if os.path.exists('token.json'):
+            # Intentar cargar token desde Secret Manager primero
+            token_loaded = False
+            if config_status['token_in_secret_manager']:
+                try:
+                    token_json = secret_manager_service.retrieve_secret(GMAIL_TOKEN_SECRET_ID)
+                    if token_json:
+                        self.credentials = Credentials.from_authorized_user_info(
+                            json.loads(token_json), SCOPES
+                        )
+                        token_loaded = True
+                        logger.info("Token cargado desde Secret Manager")
+                except Exception as e:
+                    logger.warning(f"Error cargando token desde Secret Manager: {e}")
+            
+            # Si no se pudo cargar desde Secret Manager, intentar archivo local
+            if not token_loaded and os.path.exists('token.json'):
                 try:
                     self.credentials = Credentials.from_authorized_user_file('token.json', SCOPES)
+                    token_loaded = True
+                    logger.info("Token cargado desde archivo local")
                 except Exception as e:
-                    logger.warning(f"Error cargando token existente: {e}")
-                    self.credentials = None
+                    logger.warning(f"Error cargando token local: {e}")
             
             # Si no hay credenciales válidas, solicitar autorización
             if not self.credentials or not self.credentials.valid:
@@ -142,12 +192,15 @@ class RobustGmailService:
                         return result
                 
                 # Guardar credenciales para uso futuro
-                try:
-                    with open('token.json', 'w') as token:
-                        token.write(self.credentials.to_json())
-                    logger.info("Token guardado exitosamente")
-                except Exception as save_error:
-                    logger.warning(f"Error al guardar token: {save_error}")
+                # Intentar guardar en Secret Manager primero
+                if not self._save_token_to_secret_manager():
+                    # Fallback: guardar en archivo local
+                    try:
+                        with open('token.json', 'w') as token:
+                            token.write(self.credentials.to_json())
+                        logger.info("Token guardado en archivo local")
+                    except Exception as save_error:
+                        logger.warning(f"Error al guardar token local: {save_error}")
             
             # Construir servicio de Gmail
             self.service = build('gmail', 'v1', credentials=self.credentials)
@@ -395,3 +448,77 @@ class RobustGmailService:
         except Exception as e:
             stats['error_message'] = f"Error obteniendo estadísticas: {str(e)}"
             return stats
+    
+    def _save_token_to_secret_manager(self) -> bool:
+        """
+        Guardar token en Secret Manager.
+        
+        Returns:
+            True si se guardó exitosamente, False en caso contrario
+        """
+        if not self.credentials:
+            return False
+        
+        try:
+            token_json = self.credentials.to_json()
+            success = secret_manager_service.store_secret(
+                GMAIL_TOKEN_SECRET_ID, 
+                token_json,
+                "Gmail OAuth Token para Facturas BST"
+            )
+            
+            if success:
+                logger.info("Token guardado en Secret Manager exitosamente")
+            else:
+                logger.warning("Error guardando token en Secret Manager")
+            
+            return success
+            
+        except Exception as e:
+            logger.error(f"Error guardando token en Secret Manager: {e}")
+            return False
+    
+    def _load_credentials_from_secret_manager(self) -> Optional[Dict[str, Any]]:
+        """
+        Cargar credenciales desde Secret Manager.
+        
+        Returns:
+            Diccionario con credenciales o None si no se pudo cargar
+        """
+        try:
+            credentials_json = secret_manager_service.retrieve_secret(GMAIL_CREDENTIALS_SECRET_ID)
+            if credentials_json:
+                return json.loads(credentials_json)
+        except Exception as e:
+            logger.warning(f"Error cargando credenciales desde Secret Manager: {e}")
+        
+        return None
+    
+    def _save_credentials_to_secret_manager(self, credentials_data: Dict[str, Any]) -> bool:
+        """
+        Guardar credenciales en Secret Manager.
+        
+        Args:
+            credentials_data: Datos de credenciales
+            
+        Returns:
+            True si se guardó exitosamente, False en caso contrario
+        """
+        try:
+            credentials_json = json.dumps(credentials_data)
+            success = secret_manager_service.store_secret(
+                GMAIL_CREDENTIALS_SECRET_ID,
+                credentials_json,
+                "Gmail OAuth Credentials para Facturas BST"
+            )
+            
+            if success:
+                logger.info("Credenciales guardadas en Secret Manager exitosamente")
+            else:
+                logger.warning("Error guardando credenciales en Secret Manager")
+            
+            return success
+            
+        except Exception as e:
+            logger.error(f"Error guardando credenciales en Secret Manager: {e}")
+            return False
