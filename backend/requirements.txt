@@ -36,7 +36,7 @@ Pillow==10.1.0
 
 # OCR para facturas físicas
 pytesseract==0.3.10
-PyMuPDF==1.23.8
+PyMuPDF==1.26.4
 
 # Procesamiento asíncrono
 celery==5.3.4
