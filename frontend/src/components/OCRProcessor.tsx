@@ -90,6 +90,11 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
   // Mutación para crear factura
   const createInvoiceMutation = useMutation(
     (data: any) => {
+      console.log('Enviando datos:', {
+        payment_method: data.payment_method,
+        category: data.category,
+        description: data.description
+      })
       return ocrApi.processAndCreateInvoice(selectedFile!, userId, data.payment_method, data.category, data.description)
     },
     {
@@ -98,8 +103,10 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
         queryClient.invalidateQueries('dashboard-stats')
         onSuccess?.(invoice.id)
       },
-      onError: (error) => {
+      onError: (error: any) => {
         console.error('Error creando factura:', error)
+        const errorMessage = error?.response?.data?.detail || error?.message || 'Error desconocido'
+        alert(`Error al crear la factura: ${JSON.stringify(errorMessage)}`)
       }
     }
   )
@@ -122,9 +129,23 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
   }
 
   const handleCreateInvoice = () => {
-    if (selectedFile && formData.payment_method && formData.category) {
-      createInvoiceMutation.mutate(formData)
+    if (!selectedFile) {
+      alert('Por favor selecciona un archivo')
+      return
     }
+    
+    if (!formData.payment_method || formData.payment_method === '') {
+      alert('Por favor selecciona un método de pago')
+      return
+    }
+    
+    if (!formData.category || formData.category === '') {
+      alert('Por favor selecciona una categoría')
+      return
+    }
+    
+    console.log('Validación OK, enviando factura con:', formData)
+    createInvoiceMutation.mutate(formData)
   }
 
   const handleEditData = () => {
