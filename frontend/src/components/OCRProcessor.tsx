@@ -53,8 +53,8 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
     date: '',
     invoice_number: '',
     nit: '',
-    payment_method: '' as PaymentMethod,
-    category: '' as ExpenseCategory,
+    payment_method: PaymentMethod.CASH,
+    category: ExpenseCategory.OTHER,
     description: ''
   })
   
@@ -446,7 +446,7 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
               >
                 <option value="">Seleccionar método</option>
                 {Object.entries(PAYMENT_METHOD_LABELS).map(([key, label]) => (
-                  <option key={key} value={key}>
+                  <option key={key} value={PaymentMethod[key as keyof typeof PaymentMethod]}>
                     {label}
                   </option>
                 ))}
@@ -465,7 +465,7 @@ export function OCRProcessor({ userId, onSuccess, onCancel }: OCRProcessorProps)
               >
                 <option value="">Seleccionar categoría</option>
                 {Object.entries(EXPENSE_CATEGORY_LABELS).map(([key, label]) => (
-                  <option key={key} value={key}>
+                  <option key={key} value={ExpenseCategory[key as keyof typeof ExpenseCategory]}>
                     {label}
                   </option>
                 ))}
