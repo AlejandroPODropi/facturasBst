@@ -61,7 +61,7 @@ export function InvoiceValidation({ invoiceId, currentStatus, onClose }: Invoice
 
   // Función para obtener la URL del archivo
   const getFileUrl = () => {
-    return `${(import.meta as any).env.VITE_API_URL || 'http://localhost:8000/api/v1'}/invoices/${invoiceId}/download`
+    return `${(import.meta as any).env.VITE_API_URL || '/api/v1'}/invoices/${invoiceId}/download`
   }
 
   // Función para determinar el tipo de archivo
@@ -162,7 +162,7 @@ export function InvoiceValidation({ invoiceId, currentStatus, onClose }: Invoice
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Usuario:</span>
-                    <span className="font-medium">{invoice.user.name}</span>
+                    <span className="font-medium">{invoice.user?.name || 'Sin usuario'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Fecha:</span>
@@ -292,7 +292,7 @@ export function InvoiceValidation({ invoiceId, currentStatus, onClose }: Invoice
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Usuario:</span>
-                  <span className="font-medium">{invoice.user.name}</span>
+                  <span className="font-medium">{invoice.user?.name || 'Sin usuario'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Fecha:</span>

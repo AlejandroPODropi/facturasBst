@@ -124,7 +124,7 @@ deploy_frontend() {
         --max-instances 10 \
         --min-instances 0 \
         --timeout 300 \
-        --set-env-vars="VITE_API_URL=https://backend-bktmzvs3hq-uc.a.run.app/api/v1"
+        --set-env-vars="VITE_API_URL=https://backend-493189429371.us-central1.run.app/api/v1"
     
     log_success "Frontend desplegado exitosamente"
 }

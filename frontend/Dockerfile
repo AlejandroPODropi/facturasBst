@@ -14,6 +14,7 @@ RUN npm ci
 COPY . .
 
 # Configurar variable de entorno para producción
+# Usar URL directa del backend con CORS configurado
 ENV VITE_API_URL=https://backend-493189429371.us-central1.run.app/api/v1
 
 # Build de producción

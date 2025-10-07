@@ -8,7 +8,7 @@ import {
   EXPENSE_CATEGORY_LABELS,
   Invoice
 } from '../types'
-import { CheckCircle, Eye, Edit, Trash2, Calendar, User, CreditCard, Tag } from 'lucide-react'
+import { CheckCircle, Eye, Edit, Trash2, Calendar, User, CreditCard, Tag, Paperclip, Download } from 'lucide-react'
 
 interface InvoiceCardProps {
   invoice: Invoice
@@ -88,8 +88,8 @@ export function InvoiceCard({ invoice, onValidate, onEdit, onDelete }: InvoiceCa
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-500">
             <div className="flex items-center space-x-1 min-w-0">
               <User className="h-3 w-3 flex-shrink-0" />
-              <span className="truncate" title={invoice.user.name}>
-                {invoice.user.name}
+              <span className="truncate" title={invoice.user?.name || 'Sin usuario'}>
+                {invoice.user?.name || 'Sin usuario'}
               </span>
             </div>
             <div className="flex items-center space-x-1">
@@ -106,6 +106,40 @@ export function InvoiceCard({ invoice, onValidate, onEdit, onDelete }: InvoiceCa
             </span>
           </div>
         </div>
+
+        {/* Archivos adjuntos de Gmail */}
+        {invoice.gmail_attachments && invoice.gmail_attachments.length > 0 && (
+          <div className="mt-3 pt-3 border-t border-gray-100">
+            <div className="flex items-center space-x-1 mb-2">
+              <Paperclip className="h-3 w-3 text-gray-400" />
+              <span className="text-xs font-medium text-gray-600">Archivos adjuntos:</span>
+            </div>
+            <div className="space-y-1">
+              {invoice.gmail_attachments.map((attachment, index) => (
+                <div key={index} className="flex items-center justify-between bg-gray-50 rounded px-2 py-1">
+                  <div className="flex items-center space-x-2 min-w-0 flex-1">
+                    <Paperclip className="h-3 w-3 text-gray-400 flex-shrink-0" />
+                    <span className="text-xs text-gray-700 truncate" title={attachment.filename}>
+                      {attachment.filename}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      ({(attachment.size / 1024).toFixed(1)} KB)
+                    </span>
+                  </div>
+                  <a
+                    href={`${attachment.download_url}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-2 p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                    title="Descargar archivo"
+                  >
+                    <Download className="h-3 w-3" />
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

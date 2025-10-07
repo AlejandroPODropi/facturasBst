@@ -46,17 +46,41 @@ El objetivo es reducir errores operativos, optimizar la carga del área contable
 - Validación de facturas.  
 - Frontend con dashboard inicial.  
 
-### Fase 2 – OCR + Gmail (en desarrollo)  
-- Integración Gmail API.  
-- OCR para facturas físicas.  
-- Dashboard web avanzado.  
+### Fase 2 – OCR + Gmail (completada ✅)  
+- ✅ Integración Gmail API.  
+- ✅ OCR para facturas físicas.  
+- ✅ Dashboard web avanzado.  
 
-### Fase 2.5 – Conciliación y Control (nueva 🚀)  
-- Módulo de conciliación automática con extractos.  
-- Campos de método de pago detallados.  
-- Alertas de cumplimiento (antes del día 5).  
-- Almacenamiento en nube.  
-- Reporte contable final con códigos para Siigo.  
+### Fase 2.5 – Conciliación y Control (completada ✅)  
+- ✅ Módulo de conciliación automática con extractos.  
+- ✅ Campos de método de pago detallados.  
+- ✅ Alertas de cumplimiento (antes del día 5).  
+- ✅ Almacenamiento en nube.  
+- ✅ Reporte contable final con códigos para Siigo.
+
+### Fase 2.6 – Resolución de Problemas (completada ✅)  
+- ✅ Corrección de conflictos de rutas en FastAPI
+- ✅ Manejo robusto de datos nulos en frontend
+- ✅ Validación de esquemas Pydantic
+- ✅ Optimización de gráficos SVG
+- ✅ Despliegue y documentación completa
+
+### Fase 2.7 – Correcciones de Métodos de Pago y Archivos Adjuntos (completada ✅)  
+- ✅ Corrección de valores de métodos de pago (mayúsculas vs minúsculas)
+- ✅ Implementación de enlaces de descarga para archivos adjuntos de Gmail
+- ✅ Mejora de extracción de montos en facturas colombianas
+- ✅ Eliminación de usuario "Sin Usuario" no deseado
+- ✅ Corrección de dropdown de usuarios en edición de facturas
+- ✅ Despliegue completo de correcciones
+
+### Fase 2.8 – Resolución de Problemas de Base de Datos y CORS (completada ✅)
+- ✅ Corrección de conexión a base de datos con credenciales correctas
+- ✅ Habilitación de Secret Manager API en Google Cloud
+- ✅ Migración exitosa de credenciales Gmail a Secret Manager
+- ✅ Corrección de etiquetas de Secret Manager para cumplir con regex
+- ✅ Resolución de errores 500 en endpoints del backend
+- ✅ Verificación de funcionamiento de todos los endpoints críticos
+- ✅ Estabilización completa del sistema en producción  
 
 ### Fase 3 – Escalamiento (4-6 meses)  
 - Clasificación automática de gastos con IA.  

@@ -146,7 +146,7 @@ log "🎨 Construyendo y desplegando frontend..."
 cd frontend
 
 # Crear archivo de configuración para producción
-echo "VITE_API_URL=$BACKEND_URL" > .env.production
+echo "VITE_API_URL=/api/v1" > .env.production
 
 # Build del frontend
 npm ci

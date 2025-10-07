@@ -45,7 +45,11 @@ npm install
 Crea el archivo `.env.local`:
 
 ```bash
+# Para desarrollo local
 VITE_API_URL=http://localhost:8000/api/v1
+
+# Para producción (usar rutas relativas para proxy nginx):
+# VITE_API_URL=/api/v1
 ```
 
 ### 3. Ejecutar en modo desarrollo
