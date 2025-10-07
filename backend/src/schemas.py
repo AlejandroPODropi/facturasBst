@@ -44,7 +44,7 @@ class InvoiceBase(BaseModel):
     """Esquema base para factura."""
     date: datetime = Field(..., description="Fecha de la factura")
     provider: str = Field(..., min_length=2, max_length=255, description="Nombre del proveedor")
-    amount: float = Field(..., gt=0, description="Monto de la factura (debe ser mayor a 0)")
+    amount: float = Field(..., ge=0, description="Monto de la factura (debe ser mayor o igual a 0)")
     payment_method: PaymentMethod = Field(..., description="Método de pago utilizado")
     category: ExpenseCategory = Field(..., description="Categoría del gasto")
     description: Optional[str] = Field(None, max_length=1000, description="Descripción adicional")
@@ -60,22 +60,24 @@ class InvoiceUpdate(BaseModel):
     """Esquema para actualizar una factura existente."""
     date: Optional[datetime] = None
     provider: Optional[str] = Field(None, min_length=2, max_length=255)
-    amount: Optional[float] = Field(None, gt=0)
+    amount: Optional[float] = Field(None, ge=0)
     payment_method: Optional[PaymentMethod] = None
     category: Optional[ExpenseCategory] = None
     description: Optional[str] = Field(None, max_length=1000)
     status: Optional[InvoiceStatus] = None
+    user_id: Optional[int] = Field(None, description="ID del usuario asignado")
 
 
 class Invoice(InvoiceBase):
     """Esquema de respuesta para factura."""
     id: int
-    user_id: int
+    user_id: Optional[int] = None
     file_path: Optional[str] = None
     status: InvoiceStatus
     created_at: datetime
     updated_at: Optional[datetime] = None
-    user: User
+    user: Optional[User] = None
+    gmail_attachments: Optional[List[dict]] = None
     
     class Config:
         from_attributes = True
@@ -136,3 +138,53 @@ class ErrorResponse(BaseModel):
     message: str
     detail: Optional[str] = None
     success: bool = False
+
+
+# Esquemas para procesamiento en lote
+class BulkInvoiceItem(BaseModel):
+    """Esquema para un item de factura en procesamiento en lote."""
+    email_id: str = Field(..., description="ID del email de Gmail")
+    email_subject: str = Field(..., description="Asunto del email")
+    email_from: str = Field(..., description="Remitente del email")
+    provider: str = Field(..., description="Nombre del proveedor")
+    amount: float = Field(..., ge=0, description="Monto de la factura")
+    date: datetime = Field(..., description="Fecha de la factura")
+    description: Optional[str] = Field(None, description="Descripción de la factura")
+    user_id: Optional[int] = Field(None, description="ID del usuario al que asignar la factura (opcional para facturas sin usuario)")
+    payment_method: PaymentMethod = Field(default=PaymentMethod.CASH, description="Método de pago")
+    category: ExpenseCategory = Field(default=ExpenseCategory.OTHER, description="Categoría del gasto")
+    nit: Optional[str] = Field(None, max_length=50, description="Número de identificación tributaria")
+    gmail_attachments: Optional[List[dict]] = Field(None, description="Información de archivos adjuntos de Gmail")
+
+
+class BulkInvoiceCreate(BaseModel):
+    """Esquema para crear facturas en lote."""
+    invoices: List[BulkInvoiceItem] = Field(..., min_items=1, description="Lista de facturas a crear")
+    skip_duplicates: bool = Field(default=True, description="Saltar facturas duplicadas")
+
+
+class BulkInvoiceResponse(BaseModel):
+    """Esquema para respuesta de procesamiento en lote."""
+    success: bool
+    total_processed: int
+    created_count: int
+    skipped_count: int
+    error_count: int
+    created_invoices: List[int] = Field(..., description="IDs de facturas creadas")
+    skipped_invoices: List[str] = Field(..., description="Email IDs de facturas saltadas")
+    errors: List[dict] = Field(..., description="Lista de errores encontrados")
+
+
+class InvoiceAnalysisResult(BaseModel):
+    """Esquema para resultado de análisis de facturas."""
+    email_id: str
+    email_subject: str
+    email_from: str
+    provider: str
+    amount: float
+    date: datetime
+    description: Optional[str] = None
+    attachments: List[dict] = Field(..., description="Lista de adjuntos")
+    suggested_user_id: Optional[int] = None
+    suggested_user_name: Optional[str] = None
+    reason_no_user: Optional[str] = None

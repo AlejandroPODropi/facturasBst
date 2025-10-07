@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useMutation, useQueryClient } from 'react-query'
+import { useMutation, useQueryClient, useQuery } from 'react-query'
 import { invoicesApi, usersApi } from '../services/api'
 import { X, Save, AlertCircle } from 'lucide-react'
 import { Invoice, PaymentMethod, ExpenseCategory } from '../types'
@@ -23,7 +23,7 @@ export function EditInvoiceModal({ invoice, isOpen, onClose }: EditInvoiceModalP
     user_id: 0
   })
 
-  const { data: users = [] } = useQueryClient().getQueryData('users') as any
+  const { data: users = [] } = useQuery('users', () => usersApi.getAll())
 
   useEffect(() => {
     if (invoice) {
@@ -31,8 +31,8 @@ export function EditInvoiceModal({ invoice, isOpen, onClose }: EditInvoiceModalP
         date: invoice.date ? new Date(invoice.date).toISOString().split('T')[0] : '',
         provider: invoice.provider || '',
         amount: invoice.amount?.toString() || '',
-        payment_method: invoice.payment_method || 'efectivo',
-        category: invoice.category || 'otros',
+        payment_method: invoice.payment_method || PaymentMethod.CASH,
+        category: invoice.category || ExpenseCategory.OTHER,
         description: invoice.description || '',
         user_id: invoice.user_id || 0
       })
@@ -66,6 +66,11 @@ export function EditInvoiceModal({ invoice, isOpen, onClose }: EditInvoiceModalP
     
     if (!formData.provider || !formData.amount || formData.amount <= 0) {
       alert('Por favor completa todos los campos requeridos')
+      return
+    }
+
+    if (!formData.user_id || formData.user_id === 0) {
+      alert('Por favor selecciona un usuario')
       return
     }
 
@@ -164,8 +169,8 @@ export function EditInvoiceModal({ invoice, isOpen, onClose }: EditInvoiceModalP
                     required
                     className="input mt-1"
                   >
-                    {Object.entries(PAYMENT_METHOD_LABELS).map(([value, label]) => (
-                      <option key={value} value={value}>
+                    {Object.entries(PAYMENT_METHOD_LABELS).map(([key, label]) => (
+                      <option key={key} value={PaymentMethod[key as keyof typeof PaymentMethod]}>
                         {label}
                       </option>
                     ))}
@@ -184,8 +189,8 @@ export function EditInvoiceModal({ invoice, isOpen, onClose }: EditInvoiceModalP
                     required
                     className="input mt-1"
                   >
-                    {Object.entries(EXPENSE_CATEGORY_LABELS).map(([value, label]) => (
-                      <option key={value} value={value}>
+                    {Object.entries(EXPENSE_CATEGORY_LABELS).map(([key, label]) => (
+                      <option key={key} value={ExpenseCategory[key as keyof typeof ExpenseCategory]}>
                         {label}
                       </option>
                     ))}

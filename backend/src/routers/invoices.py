@@ -10,13 +10,17 @@ from sqlalchemy import and_, or_
 from typing import List, Optional
 import os
 import uuid
+import logging
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 from src.database import get_db, settings
 from src.models import Invoice, User, InvoiceStatus, ExpenseCategory, PaymentMethod
 from src.schemas import (
     InvoiceCreate, InvoiceUpdate, Invoice as InvoiceSchema, 
-    InvoiceFilters, PaginatedResponse, ExportParams, MessageResponse
+    InvoiceFilters, PaginatedResponse, ExportParams, MessageResponse,
+    BulkInvoiceCreate, BulkInvoiceResponse
 )
 from src.services.excel_export import export_invoices_to_excel
 
@@ -111,7 +115,7 @@ async def upload_invoice(
         description=description
     )
     
-    db_invoice = Invoice(**invoice_data.dict(), file_path=file_path)
+    db_invoice = Invoice(**invoice_data.model_dump(), file_path=file_path)
     db.add(db_invoice)
     db.commit()
     db.refresh(db_invoice)
@@ -196,6 +200,119 @@ async def get_invoices(
     )
 
 
+@router.post("/bulk-create", response_model=BulkInvoiceResponse)
+async def bulk_create_invoices(
+    bulk_data: BulkInvoiceCreate,
+    db: Session = Depends(get_db)
+):
+    """
+    Crear múltiples facturas en lote desde análisis de Gmail.
+    
+    Args:
+        bulk_data: Datos de facturas a crear en lote
+        db: Sesión de base de datos
+        
+    Returns:
+        BulkInvoiceResponse: Resultado del procesamiento en lote
+    """
+    try:
+        created_invoices = []
+        skipped_invoices = []
+        errors = []
+        
+        for invoice_data in bulk_data.invoices:
+            try:
+                # Verificar que el usuario existe (si se proporciona)
+                user = None
+                if invoice_data.user_id:
+                    user = db.query(User).filter(User.id == invoice_data.user_id).first()
+                    if not user:
+                        errors.append({
+                            "email_id": invoice_data.email_id,
+                            "error": f"Usuario con ID {invoice_data.user_id} no encontrado"
+                        })
+                        continue
+                
+                # Verificar duplicados si skip_duplicates está habilitado
+                if bulk_data.skip_duplicates:
+                    # Para facturas sin usuario, buscar por provider, amount y date
+                    if invoice_data.user_id:
+                        existing_invoice = db.query(Invoice).filter(
+                            Invoice.provider == invoice_data.provider,
+                            Invoice.amount == invoice_data.amount,
+                            Invoice.date == invoice_data.date,
+                            Invoice.user_id == invoice_data.user_id
+                        ).first()
+                    else:
+                        # Para facturas sin usuario, buscar por provider, amount, date y user_id NULL
+                        existing_invoice = db.query(Invoice).filter(
+                            Invoice.provider == invoice_data.provider,
+                            Invoice.amount == invoice_data.amount,
+                            Invoice.date == invoice_data.date,
+                            Invoice.user_id.is_(None)
+                        ).first()
+                    
+                    if existing_invoice:
+                        skipped_invoices.append(invoice_data.email_id)
+                        continue
+                
+                # Crear la nueva factura
+                new_invoice = Invoice(
+                    user_id=invoice_data.user_id,
+                    date=invoice_data.date,
+                    provider=invoice_data.provider,
+                    amount=invoice_data.amount,
+                    payment_method=invoice_data.payment_method,
+                    category=invoice_data.category,
+                    description=invoice_data.description or f"Factura extraída de Gmail - Email: {invoice_data.email_subject}",
+                    nit=invoice_data.nit,
+                    status=InvoiceStatus.PENDING,
+                    # Guardar información del email en OCR data para referencia
+                    ocr_data={
+                        "email_id": invoice_data.email_id,
+                        "email_subject": invoice_data.email_subject,
+                        "email_from": invoice_data.email_from,
+                        "source": "gmail_analysis"
+                    },
+                    # Guardar información de archivos adjuntos de Gmail
+                    gmail_attachments=getattr(invoice_data, 'gmail_attachments', None)
+                )
+                
+                db.add(new_invoice)
+                db.flush()  # Para obtener el ID
+                created_invoices.append(new_invoice.id)
+                
+            except Exception as e:
+                errors.append({
+                    "email_id": invoice_data.email_id,
+                    "error": str(e)
+                })
+                continue
+        
+        # Confirmar todos los cambios
+        if created_invoices:
+            db.commit()
+        
+        return BulkInvoiceResponse(
+            success=len(errors) == 0,
+            total_processed=len(bulk_data.invoices),
+            created_count=len(created_invoices),
+            skipped_count=len(skipped_invoices),
+            error_count=len(errors),
+            created_invoices=created_invoices,
+            skipped_invoices=skipped_invoices,
+            errors=errors
+        )
+        
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Error en procesamiento en lote: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error en procesamiento en lote: {str(e)}"
+        )
+
+
 @router.get("/{invoice_id}", response_model=InvoiceSchema)
 async def get_invoice(invoice_id: int, db: Session = Depends(get_db)):
     """
@@ -253,6 +370,15 @@ async def update_invoice(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="El monto debe ser mayor a 0"
         )
+    
+    # Validar que el usuario existe si se está actualizando
+    if invoice_update.user_id is not None:
+        user = db.query(User).filter(User.id == invoice_update.user_id).first()
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Usuario no encontrado"
+            )
     
     # Actualizar campos
     update_data = invoice_update.dict(exclude_unset=True)
@@ -459,3 +585,5 @@ async def download_invoice_file(invoice_id: int, db: Session = Depends(get_db)):
         filename=download_filename,
         media_type=media_type
     )
+
+

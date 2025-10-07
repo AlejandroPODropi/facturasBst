@@ -37,39 +37,71 @@ settings = Settings()
 # Función para crear conexión con Cloud SQL
 def getconn():
     """Crear conexión a Cloud SQL usando el connector."""
-    connector = Connector()
-    
-    # Extraer información de la URL de conexión
+    try:
+        connector = Connector()
+        
+        # Extraer información de la URL de conexión
+        if "host=/cloudsql/" in settings.database_url:
+            # Formato: postgresql://user:pass@/db?host=/cloudsql/project:region:instance
+            import re
+            match = re.search(r'postgresql://([^:]+):([^@]+)@/([^?]+)\?host=(.+)', settings.database_url)
+            if match:
+                user, password, db_name, host = match.groups()
+                # El host debe ser solo la parte después de /cloudsql/
+                instance_connection_name = host.replace('/cloudsql/', '')
+                conn = connector.connect(
+                    instance_connection_name,
+                    "pg8000",
+                    user=user,
+                    password=password,
+                    db=db_name,
+                )
+                return conn
+        
+        # Fallback para conexiones locales o IP directa
+        return None
+    except Exception as e:
+        print(f"Error en getconn: {e}")
+        return None
+
+# Crear engine de SQLAlchemy
+# Usar conexión directa con psycopg2 para evitar problemas con Cloud SQL connector
+try:
     if "host=/cloudsql/" in settings.database_url:
-        # Formato: postgresql://user:pass@/db?host=/cloudsql/project:region:instance
+        # Convertir URL de Cloud SQL a URL directa con psycopg2
         import re
         match = re.search(r'postgresql://([^:]+):([^@]+)@/([^?]+)\?host=(.+)', settings.database_url)
         if match:
             user, password, db_name, host = match.groups()
-            # El host debe ser solo la parte después de /cloudsql/
-            instance_connection_name = host.replace('/cloudsql/', '')
-            conn = connector.connect(
-                instance_connection_name,
-                "pg8000",
-                user=user,
-                password=password,
-                db=db_name,
+            # Usar IP pública de Cloud SQL con psycopg2
+            direct_url = f"postgresql://{user}:{password}@35.232.248.130:5432/{db_name}"
+            print(f"Usando URL directa: {direct_url}")
+            engine = create_engine(
+                direct_url,
+                pool_pre_ping=True,
+                echo=settings.debug,
+                pool_recycle=3600,  # Reciclar conexiones cada hora
+                pool_timeout=30,    # Timeout de 30 segundos
+                max_overflow=10,    # Permitir hasta 10 conexiones adicionales
+                pool_size=5         # Pool base de 5 conexiones
             )
-            return conn
-    
-    # Fallback para conexiones locales o IP directa
-    return None
-
-# Crear engine de SQLAlchemy
-# Usar Cloud SQL connector si está configurado, sino conexión directa
-if "host=/cloudsql/" in settings.database_url:
-    engine = create_engine(
-        "postgresql+pg8000://",
-        creator=getconn,
-        pool_pre_ping=True,
-        echo=settings.debug
-    )
-else:
+        else:
+            print(f"URL no coincide con patrón Cloud SQL: {settings.database_url}")
+            engine = create_engine(
+                settings.database_url,
+                pool_pre_ping=True,
+                echo=settings.debug
+            )
+    else:
+        print(f"URL no es de Cloud SQL: {settings.database_url}")
+        engine = create_engine(
+            settings.database_url,
+            pool_pre_ping=True,
+            echo=settings.debug
+        )
+except Exception as e:
+    print(f"Error creando engine: {e}")
+    # Fallback a conexión directa
     engine = create_engine(
         settings.database_url,
         pool_pre_ping=True,
