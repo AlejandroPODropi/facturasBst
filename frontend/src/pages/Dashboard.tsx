@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useQuery } from 'react-query'
 import { usersApi, invoicesApi, dashboardApi } from '../services/api'
 import { 
@@ -7,14 +8,19 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  Activity
+  Activity,
+  Search,
+  X
 } from 'lucide-react'
 import { Chart } from '../components/Chart'
 import { UserStats } from '../components/UserStats'
 import { InvoiceTrends } from '../components/InvoiceTrends'
 import { GmailIntegration } from '../components/GmailIntegration'
+import { InvoiceAnalysis } from '../components/InvoiceAnalysis'
 
 export function Dashboard() {
+  const [showInvoiceAnalysis, setShowInvoiceAnalysis] = useState(false)
+  
   // Consultas para datos básicos (mantener compatibilidad)
   const { data: users = [] } = useQuery('users', () => usersApi.getAll())
   const { data: invoicesData } = useQuery('invoices', () => invoicesApi.getAll())
@@ -279,7 +285,7 @@ export function Dashboard() {
                           {invoice.provider}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {invoice.user.name}
+                          {invoice.user?.name || 'Sin usuario'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           ${invoice.amount.toLocaleString()}
@@ -312,7 +318,7 @@ export function Dashboard() {
                           {invoice.provider}
                         </h4>
                         <p className="text-xs text-gray-500 mt-1">
-                          {invoice.user.name}
+                          {invoice.user?.name || 'Sin usuario'}
                         </p>
                       </div>
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -339,8 +345,40 @@ export function Dashboard() {
         </div>
       </div>
 
+      {/* Análisis de Facturas Gmail */}
+      <div className="card">
+        <div className="card-content">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Análisis de Facturas Gmail</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Analiza y procesa facturas automáticamente desde Gmail
+              </p>
+            </div>
+            <button
+              onClick={() => setShowInvoiceAnalysis(true)}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2"
+            >
+              <Search className="h-4 w-4" />
+              Analizar Facturas
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Gmail Integration */}
       <GmailIntegration />
+
+      {/* Modal de Análisis de Facturas */}
+      {showInvoiceAnalysis && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-7xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <InvoiceAnalysis onClose={() => setShowInvoiceAnalysis(false)} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

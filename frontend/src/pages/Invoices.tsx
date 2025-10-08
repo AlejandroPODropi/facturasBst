@@ -190,7 +190,7 @@ export function Invoices() {
                         )}
                         {/* Mostrar información adicional en tablet */}
                         <div className="lg:hidden text-xs text-gray-500 mt-1">
-                          <div>{invoice.user.name}</div>
+                          <div>{invoice.user?.name || 'Sin usuario'}</div>
                           <div className="flex items-center space-x-2 mt-1">
                             <span className="inline-flex px-1.5 py-0.5 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
                               {EXPENSE_CATEGORY_LABELS[invoice.category as ExpenseCategory]}
@@ -201,8 +201,8 @@ export function Invoices() {
                         </div>
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap hidden lg:table-cell">
-                        <div className="text-sm text-gray-900">{invoice.user.name}</div>
-                        <div className="text-xs text-gray-500">{invoice.user.email}</div>
+                        <div className="text-sm text-gray-900">{invoice.user?.name || 'Sin usuario'}</div>
+                        <div className="text-xs text-gray-500">{invoice.user?.email || ''}</div>
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">

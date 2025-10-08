@@ -68,6 +68,8 @@ export const invoicesApi = {
         // Convertir fecha a formato ISO datetime
         if (key === 'date' && typeof value === 'string') {
           formData.append(key, `${value}T00:00:00`)
+        } else if (key === 'amount') {
+          formData.append(key, parseFloat(value.toString()).toString())
         } else {
           formData.append(key, value.toString())
         }
@@ -112,6 +114,24 @@ export const invoicesApi = {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+    })
+    return response.data
+  },
+
+  // Análisis y procesamiento en lote de facturas desde Gmail
+  analyzeInvoices: async (query?: string, maxResults?: number): Promise<any> => {
+    const params: any = {}
+    if (query) params.query = query
+    if (maxResults) params.max_results = maxResults
+    
+    const response = await api.get('/gmail/analyze-invoices', { params })
+    return response.data
+  },
+
+  bulkCreate: async (invoices: any[], skipDuplicates: boolean = true): Promise<any> => {
+    const response = await api.post('/invoices/bulk-create', {
+      invoices,
+      skip_duplicates: skipDuplicates
     })
     return response.data
   },

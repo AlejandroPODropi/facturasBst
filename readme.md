@@ -272,6 +272,42 @@ VITE_APP_NAME=Control de Facturas Boosting
 
 ### Problemas Comunes
 
+#### Error de Conexión a Base de Datos
+```bash
+# Verificar conexión
+psql -h localhost -U boosting_user -d facturas_boosting
+
+# Verificar credenciales (producción)
+# Usuario: boosting_user
+# Contraseña: Boosting2024!Secure
+
+# Ejecutar migraciones
+alembic upgrade head
+```
+
+#### Error de Secret Manager
+```bash
+# Habilitar API de Secret Manager
+gcloud services enable secretmanager.googleapis.com
+
+# Verificar permisos
+gcloud projects get-iam-policy facturasbst
+```
+
+#### Error de Gmail API
+1. Verificar credenciales en Google Cloud Console
+2. Habilitar Gmail API
+3. Configurar OAuth 2.0 correctamente
+4. Migrar credenciales a Secret Manager:
+```bash
+curl -X POST 'https://backend-493189429371.us-central1.run.app/api/v1/gmail/migrate-to-secret-manager'
+```
+
+#### Error 422 en Procesamiento de Facturas
+- Verificar que los valores de enum estén correctos
+- Usar `PaymentMethod.CASH` en lugar de `'efectivo'`
+- Usar `ExpenseCategory.OTHER` en lugar de `'otros'`
+
 #### Error de Tesseract
 ```bash
 # Verificar instalación
@@ -281,33 +317,23 @@ tesseract --version
 sudo apt-get install tesseract-ocr-spa tesseract-ocr-eng
 ```
 
-#### Error de Base de Datos
-```bash
-# Verificar conexión
-psql -h localhost -U user -d facturas_boosting
-
-# Ejecutar migraciones
-alembic upgrade head
-```
-
-#### Error de Gmail API
-1. Verificar credenciales en Google Cloud Console
-2. Habilitar Gmail API
-3. Configurar OAuth 2.0 correctamente
-
 ## 📈 Roadmap
 
-### Versión 1.1
-- [ ] Mejoras en OCR con IA
-- [ ] Integración con más proveedores de email
-- [ ] Dashboard avanzado con gráficos
-- [ ] Notificaciones push
+### Versión 2.9 (Q4 2025)
+- [ ] Clasificación automática de gastos con IA
+- [ ] Integración directa con Siigo
+- [ ] Dashboard avanzado con Business Intelligence
+- [ ] Sistema de notificaciones push
 
-### Versión 1.2
-- [ ] API móvil
-- [ ] Integración con sistemas contables
-- [ ] Análisis predictivo
-- [ ] Multi-tenancy
+### Versión 3.0 (Q1 2026)
+- [ ] Aplicación móvil nativa
+- [ ] Análisis predictivo de gastos
+- [ ] Integración con más proveedores de facturas
+
+### Versión 3.1 (Q2 2026)
+- [ ] Multi-tenant para múltiples empresas
+- [ ] API pública para integraciones
+- [ ] Machine Learning para optimización de procesos
 
 ## 🤝 Contribución
 
@@ -329,9 +355,9 @@ Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
 
 ## 🌐 URLs de Producción
 
-### 🎉 Última Actualización: Fix CORS y Endpoints (v2.0.1)
-**Fecha:** 1 de Octubre de 2025  
-**Estado:** ✅ **DESPLEGADO EXITOSAMENTE**
+### 🎉 Última Actualización: Sistema Estabilizado (v2.8.0)
+**Fecha:** 5 de Octubre de 2025  
+**Estado:** ✅ **SISTEMA COMPLETAMENTE OPERATIVO**
 
 - **Frontend:** https://frontend-493189429371.us-central1.run.app
 - **Backend:** https://backend-493189429371.us-central1.run.app
@@ -339,6 +365,14 @@ Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
 - **Health Check:** https://backend-493189429371.us-central1.run.app/health
 
 ### 📱 Características Implementadas
+
+#### **Sistema Estabilizado (v2.8.0)**
+- ✅ **Base de datos**: Conexión corregida con credenciales `Boosting2024!Secure`
+- ✅ **Secret Manager**: API habilitada y credenciales Gmail migradas exitosamente
+- ✅ **Endpoints críticos**: Dashboard, facturas y usuarios funcionando al 100%
+- ✅ **Procesamiento Gmail**: Análisis y procesamiento en lote sin errores 422
+- ✅ **Métodos de pago**: Tarjeta BST y Tarjeta Personal funcionando correctamente
+- ✅ **Archivos adjuntos**: Enlaces de descarga implementados para Gmail
 
 #### **Diseño Responsive (v2.0.0)**
 - 📱 **Móviles** (< 640px): Sidebar colapsable, vista de tarjetas
@@ -359,8 +393,11 @@ Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
 - ✅ Navegación optimizada para todos los dispositivos
 - ✅ Todos los endpoints funcionando correctamente
 - ✅ Sin errores CORS en producción
+- ✅ Sistema completamente estabilizado y operativo
 
 **Ver documentación completa:**
+- [`task/task.md`](task/task.md) - Estado completo del proyecto
+- [`task/PLANNING.md`](task/PLANNING.md) - Planificación detallada
 - [`documentos/DESPLEGUE_RESPONSIVE_COMPLETO.md`](documentos/DESPLEGUE_RESPONSIVE_COMPLETO.md)
 - [`documentos/SOLUCION_ERRORES_CORS_ENDPOINTS.md`](documentos/SOLUCION_ERRORES_CORS_ENDPOINTS.md)
 

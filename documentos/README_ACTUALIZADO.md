@@ -1,556 +1,373 @@
-# Control de Facturas Boosting 🚀
+# Sistema de Gestión de Facturas - FacturasBST
 
-Sistema completo de gestión de facturas con procesamiento OCR, integración Gmail y análisis de datos.
+## 🚀 Estado del Proyecto: **COMPLETAMENTE OPERATIVO**
 
-[![Estado](https://img.shields.io/badge/Estado-Operativo-success)](https://backend-493189429371.us-central1.run.app/health)
-[![Versión](https://img.shields.io/badge/Versión-1.0.0-blue)](https://github.com/AlejandroPODropi/facturasBst)
-[![Cloud](https://img.shields.io/badge/Cloud-GCP-orange)](https://cloud.google.com)
+Sistema completo de gestión de facturas con integración Gmail, procesamiento OCR y análisis automático de facturas colombianas.
 
----
+## 📋 Características Principales
 
-## ✅ Estado Actual del Sistema
+### ✅ Funcionalidades Implementadas
 
-**🟢 SISTEMA COMPLETAMENTE OPERATIVO**
+- **🔐 Sistema de Usuarios:** Autenticación, roles y gestión de perfiles
+- **📄 Gestión de Facturas:** Carga manual, edición, eliminación y visualización
+- **📧 Integración Gmail:** Análisis automático de emails y procesamiento en lote
+- **🤖 Procesamiento OCR:** Extracción automática de datos de PDFs e imágenes
+- **📊 Dashboard:** Estadísticas, gráficos y métricas en tiempo real
+- **📱 Diseño Responsivo:** Optimizado para desktop y móviles
+- **🔍 Búsqueda y Filtros:** Búsqueda avanzada y filtros múltiples
+- **📈 Reportes:** Visualización de tendencias y estadísticas
 
-| Componente | Estado | URL |
-|------------|--------|-----|
-| Backend API | ✅ Online | https://backend-493189429371.us-central1.run.app |
-| Frontend Web | ✅ Online | https://frontend-493189429371.us-central1.run.app |
-| Base de Datos | ✅ Conectada | Cloud SQL PostgreSQL |
-| Health Check | ✅ Healthy | [/health](https://backend-493189429371.us-central1.run.app/health) |
+### 🎯 Casos de Uso Principales
 
-**Última Actualización:** 30 de Septiembre de 2025  
-**Problema Reciente:** Resuelto - Conexión a base de datos en producción  
-**Disponibilidad:** 99.9%  
-**Tiempo de Respuesta:** ~250ms
+1. **Carga Manual de Facturas**
+   - Subida de archivos PDF/imágenes
+   - Procesamiento OCR automático
+   - Revisión y confirmación de datos
 
----
+2. **Procesamiento Automático desde Gmail**
+   - Análisis de emails en busca de facturas
+   - Detección automática de patrones colombianos
+   - Procesamiento en lote con asignación de usuarios
 
-## 🚀 Características Principales
+3. **Gestión y Consulta**
+   - Visualización con paginación
+   - Filtros por usuario, proveedor, fecha, estado
+   - Edición y eliminación de facturas
 
-### 💼 Gestión de Facturas
-- ✅ Creación manual de facturas
-- ✅ Validación y aprobación de facturas
-- ✅ Búsqueda y filtrado avanzado
-- ✅ Gestión de proveedores y categorías
-- ✅ Historial completo de cambios
+## 🛠️ Tecnologías Utilizadas
 
-### 🔍 Procesamiento OCR
-- ✅ Extracción automática de datos de imágenes
-- ✅ Soporte para múltiples formatos (JPG, PNG, PDF)
-- ✅ Reconocimiento de texto en español e inglés
-- ✅ Confianza y validación de resultados
-- ✅ Edición de datos extraídos
+### Backend
+- **FastAPI** - Framework web moderno y rápido
+- **PostgreSQL** - Base de datos relacional
+- **SQLAlchemy** - ORM para Python
+- **Alembic** - Migraciones de base de datos
+- **Google Cloud SQL** - Base de datos en la nube
+- **Tesseract OCR** - Procesamiento de imágenes
+- **Gmail API** - Integración con Gmail
+- **Google Secret Manager** - Gestión de credenciales
 
-### 📧 Integración Gmail
-- ✅ Sincronización automática de facturas
-- ✅ Importación desde adjuntos de email
-- ✅ OAuth 2.0 seguro
-- ✅ Filtrado inteligente de correos
-- ✅ Procesamiento en background
+### Frontend
+- **React 18** - Biblioteca de interfaz de usuario
+- **TypeScript** - JavaScript con tipos estáticos
+- **Tailwind CSS** - Framework de CSS utilitario
+- **React Query** - Gestión de estado del servidor
+- **React Router** - Enrutamiento del lado del cliente
+- **Lucide React** - Iconos modernos
 
-### 📊 Dashboard y Analytics
-- ✅ Estadísticas en tiempo real
-- ✅ Gráficos de tendencias
-- ✅ Análisis por categoría y proveedor
-- ✅ Reportes de gastos
-- ✅ Visualización de datos
+### Infraestructura
+- **Google Cloud Run** - Contenedores serverless
+- **Docker** - Contenedorización
+- **Google Cloud Storage** - Almacenamiento de archivos
+- **Google Cloud Logging** - Logs centralizados
 
-### 👥 Gestión de Usuarios
-- ✅ Sistema de autenticación JWT
-- ✅ Roles y permisos
-- ✅ Administración de usuarios
-- ✅ Logs de actividad
-- ✅ Perfiles personalizables
-
-### 📤 Exportación de Datos
-- ✅ Exportación a Excel
-- ✅ Reportes personalizados
-- ✅ Filtros avanzados
-- ✅ Múltiples hojas de cálculo
-- ✅ Formato profesional
-
----
-
-## 🏗️ Arquitectura del Sistema
-
-### Stack Tecnológico
-
-#### Backend
-```
-FastAPI 0.104.1
-├── Python 3.12
-├── PostgreSQL 15 (Cloud SQL)
-├── SQLAlchemy 2.0 (ORM)
-├── Alembic (Migraciones)
-├── JWT Authentication
-├── Tesseract OCR
-├── PyMuPDF (PDF Processing)
-└── Celery + Redis (Tasks)
-```
-
-#### Frontend
-```
-React 18
-├── TypeScript 5
-├── Vite (Build Tool)
-├── Tailwind CSS
-├── React Query (State)
-├── Axios (HTTP)
-├── Chart.js (Gráficos)
-└── React Router
-```
-
-#### Infraestructura
-```
-Google Cloud Platform
-├── Cloud Run (Backend + Frontend)
-├── Cloud SQL (PostgreSQL)
-├── Artifact Registry (Images)
-├── Cloud Build (CI/CD)
-└── Cloud Storage (Files)
-```
-
-### Diagrama de Arquitectura
-
-```
-┌─────────────────────────────────────────────────────┐
-│                    Cliente                           │
-│              (Navegador Web)                         │
-└──────────────┬──────────────────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────────────────┐
-│              Frontend (React)                        │
-│          Cloud Run - us-central1                     │
-│   https://frontend-493189429371.us-central1.run.app │
-└──────────────┬──────────────────────────────────────┘
-               │
-               │ HTTPS/REST API
-               ▼
-┌─────────────────────────────────────────────────────┐
-│            Backend (FastAPI)                         │
-│          Cloud Run - us-central1                     │
-│   https://backend-493189429371.us-central1.run.app  │
-│                                                      │
-│  ┌──────────────┐  ┌──────────────┐                │
-│  │ OCR Service  │  │ Gmail Service│                │
-│  └──────────────┘  └──────────────┘                │
-└──────────────┬──────────────────────────────────────┘
-               │
-               │ Cloud SQL Connector (pg8000)
-               ▼
-┌─────────────────────────────────────────────────────┐
-│        Cloud SQL PostgreSQL 15                       │
-│         facturas-db (us-central1)                    │
-│                                                      │
-│  ┌──────────┐  ┌──────────┐                        │
-│  │  users   │  │ invoices │                        │
-│  └──────────┘  └──────────┘                        │
-└─────────────────────────────────────────────────────┘
-```
-
----
-
-## 📋 Prerrequisitos
-
-### Desarrollo Local
-- **Python**: 3.12+
-- **Node.js**: 18+
-- **PostgreSQL**: 15+
-- **Tesseract OCR**: 5.x
-- **Docker** (opcional)
+## 🚀 URLs del Sistema
 
 ### Producción
-- **Google Cloud Account**
-- **gcloud CLI** instalado
-- **Permisos de GCP**:
-  - Cloud Run Admin
-  - Cloud SQL Admin
-  - Artifact Registry Admin
+- **Frontend:** [https://frontend-493189429371.us-central1.run.app](https://frontend-493189429371.us-central1.run.app)
+- **Backend:** [https://backend-493189429371.us-central1.run.app](https://backend-493189429371.us-central1.run.app)
 
----
+### Documentación API
+- **Swagger UI:** [https://backend-493189429371.us-central1.run.app/docs](https://backend-493189429371.us-central1.run.app/docs)
+- **ReDoc:** [https://backend-493189429371.us-central1.run.app/redoc](https://backend-493189429371.us-central1.run.app/redoc)
 
-## 🛠️ Instalación Rápida
+## 📊 Métodos de Pago y Categorías
 
-### Opción 1: Docker (Recomendado)
+### Métodos de Pago
+- **Tarjeta BST** - Tarjeta corporativa
+- **Tarjeta Personal** - Tarjeta personal del empleado
+- **Efectivo** - Pago en efectivo
+- **Transferencia** - Transferencia bancaria
 
-```bash
-# Clonar repositorio
-git clone https://github.com/AlejandroPODropi/facturasBst.git
-cd facturasBst
+### Categorías de Gastos
+- **Alimentación** - Gastos de comida y bebida
+- **Transporte** - Gastos de movilidad
+- **Servicios** - Servicios públicos y profesionales
+- **Suministros** - Materiales y suministros
+- **Mantenimiento** - Gastos de mantenimiento
+- **Otros** - Gastos diversos
 
-# Iniciar todos los servicios
-docker-compose up -d
+## 🔧 Configuración del Entorno
 
-# Acceder a:
-# - Frontend: http://localhost:3000
-# - Backend: http://localhost:8000
-# - Docs: http://localhost:8000/docs
-```
+### Requisitos
+- Node.js 18+
+- Python 3.12+
+- Docker
+- Google Cloud CLI
 
-### Opción 2: Instalación Manual
+### Variables de Entorno
 
 #### Backend
-
 ```bash
-# Navegar a backend
-cd backend
-
-# Crear entorno virtual
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# Instalar dependencias
-pip install -r requirements.txt
-
-# Configurar base de datos
-createdb facturas_boosting
-alembic upgrade head
-
-# Configurar variables de entorno
-cp .env.example .env
-# Editar .env con tus configuraciones
-
-# Iniciar servidor
-uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+DATABASE_URL=postgresql://user:password@host:port/database
+SECRET_KEY=your-secret-key
+DEBUG=false
 ```
 
 #### Frontend
-
 ```bash
-# Navegar a frontend
+VITE_API_URL=https://backend-493189429371.us-central1.run.app
+```
+
+## 🚀 Instalación y Despliegue
+
+### Desarrollo Local
+
+1. **Clonar el repositorio:**
+```bash
+git clone <repository-url>
+cd facturasBst
+```
+
+2. **Backend:**
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # En Windows: venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn src.main:app --reload
+```
+
+3. **Frontend:**
+```bash
 cd frontend
-
-# Instalar dependencias
 npm install
-
-# Configurar variables de entorno
-cp .env.example .env
-# Editar .env con tus configuraciones
-
-# Iniciar servidor de desarrollo
 npm run dev
 ```
 
----
+### Despliegue en Producción
 
-## ☁️ Despliegue a Producción
-
-### Despliegue Automatizado (Recomendado)
-
+1. **Construir imágenes Docker:**
 ```bash
-# Configurar proyecto GCP
-gcloud config set project facturasbst
+# Backend
+cd backend
+docker build --platform linux/amd64 -t us-central1-docker.pkg.dev/facturasbst/facturas-repo/backend:latest .
 
-# Ejecutar script de despliegue
-./scripts/deploy-production.sh
+# Frontend
+cd frontend
+docker build --platform linux/amd64 -t us-central1-docker.pkg.dev/facturasbst/facturas-repo/frontend:latest .
 ```
 
-### Despliegue Manual
+2. **Subir al registro:**
+```bash
+docker push us-central1-docker.pkg.dev/facturasbst/facturas-repo/backend:latest
+docker push us-central1-docker.pkg.dev/facturasbst/facturas-repo/frontend:latest
+```
 
-Ver documentación detallada en:
-- [DESPLIEGUE_PRODUCCION.md](DESPLIEGUE_PRODUCCION.md)
-- [DESPLIEGUE_GCP.md](DESPLIEGUE_GCP.md)
+3. **Desplegar en Cloud Run:**
+```bash
+# Backend
+gcloud run deploy backend \
+  --image us-central1-docker.pkg.dev/facturasbst/facturas-repo/backend:latest \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --port 8000 \
+  --memory 2Gi \
+  --cpu 2 \
+  --timeout 900 \
+  --concurrency 10 \
+  --max-instances 10
 
----
+# Frontend
+gcloud run deploy frontend \
+  --image us-central1-docker.pkg.dev/facturasbst/facturas-repo/frontend:latest \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --port 3000 \
+  --memory 1Gi \
+  --cpu 1 \
+  --timeout 300 \
+  --concurrency 10 \
+  --max-instances 5
+```
 
-## 📚 Documentación Completa
+## 📁 Estructura del Proyecto
 
-### Guías de Instalación y Configuración
-| Documento | Descripción |
-|-----------|-------------|
-| [INSTALACION.md](INSTALACION.md) | Guía completa de instalación local |
-| [CONFIGURACION_GMAIL.md](CONFIGURACION_GMAIL.md) | Setup de Gmail API y OAuth |
-| [CONFIGURACION_OCR.md](CONFIGURACION_OCR.md) | Instalación y configuración de Tesseract |
-| [CONFIGURACION_BASE_DATOS.md](CONFIGURACION_BASE_DATOS.md) | Guía técnica de base de datos |
+```
+facturasBst/
+├── backend/
+│   ├── src/
+│   │   ├── main.py              # Punto de entrada de la aplicación
+│   │   ├── database.py          # Configuración de base de datos
+│   │   ├── models.py            # Modelos SQLAlchemy
+│   │   ├── schemas.py           # Esquemas Pydantic
+│   │   ├── routers/             # Endpoints de la API
+│   │   │   ├── auth.py          # Autenticación
+│   │   │   ├── users.py         # Gestión de usuarios
+│   │   │   ├── invoices.py      # Gestión de facturas
+│   │   │   ├── dashboard.py     # Dashboard y estadísticas
+│   │   │   ├── gmail.py         # Integración Gmail
+│   │   │   └── ocr.py           # Procesamiento OCR
+│   │   └── services/            # Lógica de negocio
+│   │       ├── auth_service.py  # Servicios de autenticación
+│   │       ├── user_service.py  # Servicios de usuario
+│   │       ├── invoice_service.py # Servicios de facturas
+│   │       ├── dashboard_service.py # Servicios de dashboard
+│   │       ├── gmail_service.py # Servicios de Gmail
+│   │       └── ocr_service.py   # Servicios de OCR
+│   ├── alembic/                 # Migraciones de base de datos
+│   ├── requirements.txt         # Dependencias Python
+│   └── Dockerfile              # Imagen Docker del backend
+├── frontend/
+│   ├── src/
+│   │   ├── components/          # Componentes React
+│   │   │   ├── Dashboard.tsx    # Componente del dashboard
+│   │   │   ├── InvoiceList.tsx  # Lista de facturas
+│   │   │   ├── CreateInvoice.tsx # Crear factura
+│   │   │   ├── EditInvoiceModal.tsx # Editar factura
+│   │   │   ├── DeleteInvoiceModal.tsx # Eliminar factura
+│   │   │   ├── InvoiceAnalysis.tsx # Análisis de facturas Gmail
+│   │   │   └── GmailIntegration.tsx # Integración Gmail
+│   │   ├── pages/               # Páginas de la aplicación
+│   │   │   ├── Dashboard.tsx    # Página del dashboard
+│   │   │   ├── Invoices.tsx     # Página de facturas
+│   │   │   └── Users.tsx        # Página de usuarios
+│   │   ├── services/            # Servicios de API
+│   │   │   └── api.ts           # Cliente de API
+│   │   ├── types/               # Tipos TypeScript
+│   │   │   └── index.ts         # Definiciones de tipos
+│   │   ├── App.tsx              # Componente principal
+│   │   └── main.tsx             # Punto de entrada
+│   ├── package.json             # Dependencias Node.js
+│   └── Dockerfile              # Imagen Docker del frontend
+└── documentos/                  # Documentación del proyecto
+    ├── README_ACTUALIZADO.md    # Este archivo
+    ├── GUIA_USUARIO_FINAL.md    # Guía de usuario
+    ├── RESUMEN_ESTADO_ACTUAL_SISTEMA.md # Estado actual
+    └── SOLUCION_COMPLETA_PROCESAMIENTO_LOTE.md # Solución de problemas
+```
 
-### Guías de Despliegue
-| Documento | Descripción |
-|-----------|-------------|
-| [DESPLIEGUE_PRODUCCION.md](DESPLIEGUE_PRODUCCION.md) | Guía de despliegue a producción |
-| [DESPLIEGUE_GCP.md](DESPLIEGUE_GCP.md) | Configuración específica de GCP |
-| [CICD_README.md](CICD_README.md) | Setup de CI/CD con GitHub Actions |
+## 🔍 API Endpoints Principales
 
-### Resolución de Problemas
-| Documento | Descripción |
-|-----------|-------------|
-| [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Guía general de troubleshooting |
-| [SOLUCION_PROBLEMA_BASE_DATOS.md](SOLUCION_PROBLEMA_BASE_DATOS.md) | Solución del problema de DB (Sept 2025) |
-| [RESOLUCION_COMPLETA_DB.md](RESOLUCION_COMPLETA_DB.md) | Análisis completo del problema de DB |
+### Autenticación
+- `POST /api/v1/auth/login` - Iniciar sesión
+- `POST /api/v1/auth/register` - Registro de usuario
+- `POST /api/v1/auth/refresh` - Renovar token
 
-### Documentación Técnica
-| Documento | Descripción |
-|-----------|-------------|
-| [HISTORIAL_DESARROLLO_Y_PROBLEMAS.md](HISTORIAL_DESARROLLO_Y_PROBLEMAS.md) | Historial completo del desarrollo |
-| [RESUMEN_EJECUTIVO.md](RESUMEN_EJECUTIVO.md) | Resumen ejecutivo del proyecto |
-| [DOCUMENTACION.md](DOCUMENTACION.md) | Documentación técnica general |
+### Usuarios
+- `GET /api/v1/users/` - Listar usuarios
+- `POST /api/v1/users/` - Crear usuario
+- `GET /api/v1/users/{id}` - Obtener usuario
+- `PUT /api/v1/users/{id}` - Actualizar usuario
+- `DELETE /api/v1/users/{id}` - Eliminar usuario
 
----
+### Facturas
+- `GET /api/v1/invoices/` - Listar facturas
+- `POST /api/v1/invoices/` - Crear factura
+- `GET /api/v1/invoices/{id}` - Obtener factura
+- `PUT /api/v1/invoices/{id}` - Actualizar factura
+- `DELETE /api/v1/invoices/{id}` - Eliminar factura
+- `POST /api/v1/invoices/bulk-create` - Crear facturas en lote
 
-## 🧪 Testing
+### Dashboard
+- `GET /api/v1/dashboard/stats` - Estadísticas generales
+- `GET /api/v1/dashboard/user-stats` - Estadísticas por usuario
+- `GET /api/v1/dashboard/invoice-trends` - Tendencias de facturas
+
+### Gmail
+- `GET /api/v1/gmail/auth/status` - Estado de autenticación
+- `GET /api/v1/gmail/auth/url` - URL de autorización
+- `POST /api/v1/gmail/auth/callback` - Callback de autorización
+- `GET /api/v1/gmail/emails/search` - Buscar emails
+- `GET /api/v1/gmail/analyze-invoices` - Analizar facturas
+- `GET /api/v1/gmail/stats` - Estadísticas de Gmail
+
+### OCR
+- `POST /api/v1/ocr/process` - Procesar archivo con OCR
+
+## 🧪 Pruebas
 
 ### Backend
 ```bash
 cd backend
-pytest
-pytest --cov=src tests/
+pytest tests/
 ```
 
 ### Frontend
 ```bash
 cd frontend
 npm test
-npm run test:coverage
 ```
 
-### End-to-End
-```bash
-npm run test:e2e
-```
+## 📈 Métricas y Monitoreo
 
----
+### Rendimiento
+- **Tiempo de respuesta del backend:** < 2 segundos
+- **Carga de páginas del frontend:** < 3 segundos
+- **Procesamiento OCR:** < 10 segundos por factura
+- **Análisis de emails Gmail:** < 30 segundos por lote
 
-## 📊 API Endpoints
+### Disponibilidad
+- **Uptime del backend:** 99.9%
+- **Uptime del frontend:** 99.9%
+- **Conectividad de base de datos:** Estable
 
-### Base URL
-```
-Producción: https://backend-493189429371.us-central1.run.app
-Desarrollo: http://localhost:8000
-```
+## 🔒 Seguridad
 
-### Documentación Interactiva
-- **Swagger UI**: `/docs`
-- **ReDoc**: `/redoc`
+- **Autenticación JWT** con tokens seguros
+- **Validación de datos** en frontend y backend
+- **CORS configurado** correctamente
+- **Credenciales almacenadas** en Google Secret Manager
+- **Conexiones HTTPS** en producción
+- **Validación de archivos** en uploads
 
-### Principales Endpoints
+## 📚 Documentación Adicional
 
-#### Autenticación
-```http
-POST   /api/v1/auth/login          # Iniciar sesión
-POST   /api/v1/auth/register       # Registrar usuario
-POST   /api/v1/auth/refresh        # Renovar token
-```
-
-#### Facturas
-```http
-GET    /api/v1/invoices/           # Listar facturas
-POST   /api/v1/invoices/           # Crear factura
-GET    /api/v1/invoices/{id}       # Obtener factura
-PUT    /api/v1/invoices/{id}       # Actualizar factura
-DELETE /api/v1/invoices/{id}       # Eliminar factura
-POST   /api/v1/invoices/upload     # Subir factura con archivo
-```
-
-#### OCR
-```http
-POST   /api/v1/ocr/process                # Procesar imagen
-POST   /api/v1/ocr/process-and-create     # Procesar y crear factura
-GET    /api/v1/ocr/status/{task_id}       # Estado del procesamiento
-```
-
-#### Gmail
-```http
-GET    /api/v1/gmail/auth          # Iniciar autenticación
-GET    /api/v1/gmail/callback      # Callback OAuth
-POST   /api/v1/gmail/sync          # Sincronizar facturas
-```
-
-#### Dashboard
-```http
-GET    /api/v1/dashboard/stats     # Estadísticas generales
-GET    /api/v1/dashboard/analytics # Análisis detallados
-GET    /api/v1/dashboard/trends    # Tendencias
-```
-
-#### Usuarios
-```http
-GET    /api/v1/users/              # Listar usuarios
-POST   /api/v1/users/              # Crear usuario
-GET    /api/v1/users/{id}          # Obtener usuario
-PUT    /api/v1/users/{id}          # Actualizar usuario
-DELETE /api/v1/users/{id}          # Eliminar usuario
-```
-
----
-
-## 🔧 Configuración
-
-### Variables de Entorno
-
-#### Backend (.env)
-```bash
-# Base de Datos
-DATABASE_URL=postgresql://user:password@localhost:5432/facturas_boosting
-
-# JWT
-SECRET_KEY=your-secret-key-here
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-
-# Gmail API
-GMAIL_CLIENT_ID=your-client-id
-GMAIL_CLIENT_SECRET=your-client-secret
-GMAIL_REDIRECT_URI=http://localhost:8000/api/v1/gmail/callback
-
-# OCR
-TESSERACT_CMD=/usr/bin/tesseract
-
-# Celery
-CELERY_BROKER_URL=redis://localhost:6379/0
-CELERY_RESULT_BACKEND=redis://localhost:6379/0
-
-# Files
-UPLOAD_DIR=./uploads
-MAX_FILE_SIZE=10485760  # 10MB
-
-# Debug
-DEBUG=True
-```
-
-#### Frontend (.env)
-```bash
-VITE_API_URL=http://localhost:8000
-VITE_APP_NAME=Control de Facturas Boosting
-```
-
----
-
-## 🚨 Problemas Conocidos y Soluciones
-
-### ✅ Todos los Problemas Resueltos
-
-El sistema actualmente no tiene problemas conocidos pendientes. Todos los problemas encontrados durante el desarrollo han sido resueltos:
-
-1. ✅ **Configuración de Tesseract** - Resuelto
-2. ✅ **Calidad de OCR** - Mejorado con preprocesamiento
-3. ✅ **OAuth Gmail** - Configurado correctamente
-4. ✅ **Error al subir facturas** - Dropdowns corregidos
-5. ✅ **Frontend en lugar incorrecto** - Desplegado a Cloud Run
-6. ✅ **Conexión a base de datos** - Cloud SQL Connector implementado
-7. ✅ **Columna faltante** - Agregada en producción
-
-Para detalles de cada problema y su solución, consultar:
-- [HISTORIAL_DESARROLLO_Y_PROBLEMAS.md](HISTORIAL_DESARROLLO_Y_PROBLEMAS.md)
-
----
-
-## 📈 Roadmap
-
-### Versión 1.1 (Q1 2026)
-- [ ] Mejoras en OCR con modelos de IA
-- [ ] Integración con Outlook
-- [ ] Dashboard avanzado con más gráficos
-- [ ] Notificaciones push y email
-- [ ] App móvil (iOS/Android)
-
-### Versión 1.2 (Q2 2026)
-- [ ] Integración con sistemas contables
-- [ ] Análisis predictivo de gastos
-- [ ] Multi-tenancy
-- [ ] API pública documentada
-- [ ] Webhooks para integraciones
-
-### Versión 2.0 (Q3 2026)
-- [ ] IA para categorización automática
-- [ ] Detección de duplicados inteligente
-- [ ] Reconocimiento de patrones de gasto
-- [ ] Alertas automáticas de anomalías
-- [ ] Sistema de aprobaciones avanzado
-
----
+- **[Guía de Usuario](documentos/GUIA_USUARIO_FINAL.md)** - Manual completo para usuarios finales
+- **[Estado Actual del Sistema](documentos/RESUMEN_ESTADO_ACTUAL_SISTEMA.md)** - Resumen técnico del estado
+- **[Solución de Problemas](documentos/SOLUCION_COMPLETA_PROCESAMIENTO_LOTE.md)** - Solución de problemas comunes
 
 ## 🤝 Contribución
 
-### Cómo Contribuir
+### Flujo de Trabajo
+1. Fork del repositorio
+2. Crear rama de feature (`git checkout -b feature/nueva-funcionalidad`)
+3. Commit de cambios (`git commit -am 'Agregar nueva funcionalidad'`)
+4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
+5. Crear Pull Request
 
-1. Fork el proyecto
-2. Crear rama para feature (`git checkout -b feature/AmazingFeature`)
-3. Commit cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abrir Pull Request
+### Estándares de Código
+- **Backend:** PEP 8, Black formatter, Flake8 linter
+- **Frontend:** ESLint, Prettier, TypeScript strict mode
+- **Commits:** Conventional Commits
+- **Documentación:** Markdown con ejemplos
 
-### Guías de Contribución
+## 📞 Soporte
 
-- Seguir las convenciones de código existentes
-- Agregar tests para nuevas features
-- Actualizar documentación
-- Verificar que pasen todos los tests
-- Mantener cobertura de tests > 80%
+### Problemas Comunes
+1. **Error de conexión:** Verificar variables de entorno
+2. **OCR no funciona:** Verificar calidad de imagen
+3. **Gmail no conecta:** Verificar autorización OAuth
 
----
+### Contacto
+- **Issues:** Usar el sistema de issues de GitHub
+- **Documentación:** Revisar la documentación en `/documentos`
+- **Logs:** Verificar logs en Google Cloud Logging
 
 ## 📄 Licencia
 
-Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
+Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
+
+## 🎯 Roadmap
+
+### Próximas Funcionalidades
+- [ ] Exportación de reportes a Excel/PDF
+- [ ] Notificaciones por email
+- [ ] Integración con más proveedores de email
+- [ ] Dashboard avanzado con más métricas
+- [ ] API para integraciones externas
+- [ ] Aplicación móvil nativa
+
+### Optimizaciones
+- [ ] Cache de consultas frecuentes
+- [ ] Compresión de imágenes
+- [ ] Optimización de consultas SQL
+- [ ] Implementación de CDN
 
 ---
 
-## 👥 Equipo
-
-### Desarrollo
-- **Alejandro PODropi** - Desarrollador Principal
-
-### Tecnologías
-- **Backend**: FastAPI + Python
-- **Frontend**: React + TypeScript
-- **Database**: PostgreSQL
-- **Cloud**: Google Cloud Platform
-
-### Arquitectura
-- **Microservicios** en Cloud Run
-- **Base de datos gestionada** con Cloud SQL
-- **CI/CD** con GitHub Actions y Cloud Build
-
----
-
-## 📞 Soporte y Contacto
-
-### Soporte Técnico
-- **Issues**: [GitHub Issues](https://github.com/AlejandroPODropi/facturasBst/issues)
-- **Documentación**: Ver carpeta `/docs`
-- **Email**: soporte@facturasboosting.com
-
-### Enlaces Útiles
-- **Producción**: https://frontend-493189429371.us-central1.run.app
-- **API**: https://backend-493189429371.us-central1.run.app
-- **Docs API**: https://backend-493189429371.us-central1.run.app/docs
-- **Health**: https://backend-493189429371.us-central1.run.app/health
-- **Repositorio**: https://github.com/AlejandroPODropi/facturasBst
-
----
-
-## 🎉 Agradecimientos
-
-Gracias a todos los que han contribuido al desarrollo de este proyecto:
-- Equipo de Boosting SAS
-- Comunidad de FastAPI
-- Comunidad de React
-- Google Cloud Platform
-- Open Source Community
-
----
-
-## 📊 Estadísticas del Proyecto
-
-```
-📅 Inicio: Agosto 2025
-✅ Estado: Producción
-🟢 Uptime: 99.9%
-⚡ Latencia: ~250ms
-📦 Versión: 1.0.0
-🔧 Último Deploy: 30/09/2025
-```
-
----
-
-<div align="center">
-
-**Control de Facturas Boosting**  
-Sistema profesional de gestión de facturas con tecnología de vanguardia
-
-[![Estado](https://img.shields.io/badge/Estado-Producción-success)]()
-[![Versión](https://img.shields.io/badge/Versión-1.0.0-blue)]()
-[![Licencia](https://img.shields.io/badge/Licencia-MIT-green)]()
-
-</div>
+**Versión:** 2.0  
+**Última actualización:** 5 de octubre de 2025  
+**Estado:** ✅ **COMPLETAMENTE OPERATIVO**  
+**Desarrollado por:** Equipo de Desarrollo FacturasBST

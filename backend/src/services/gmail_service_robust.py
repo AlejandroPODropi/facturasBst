@@ -345,15 +345,21 @@ class RobustGmailService:
                 format='full'
             ).execute()
             
-            headers = message['payload'].get('headers', [])
+            # Verificar que el mensaje tiene payload
+            if 'payload' not in message:
+                logger.warning(f"Email {message_id} no tiene payload")
+                return None
+            
+            payload = message['payload']
+            headers = payload.get('headers', [])
             
             return {
                 'id': message_id,
                 'subject': self._get_header_value(headers, 'Subject'),
                 'from': self._get_header_value(headers, 'From'),
                 'date': self._get_header_value(headers, 'Date'),
-                'body': self._extract_body_safe(message['payload']),
-                'attachments': self._extract_attachments_safe(message['payload'])
+                'body': self._extract_body_safe(payload),
+                'attachments': self._extract_attachments_safe(payload)
             }
             
         except Exception as e:
@@ -372,12 +378,14 @@ class RobustGmailService:
         try:
             if 'parts' in payload:
                 for part in payload['parts']:
-                    if part['mimeType'] == 'text/plain':
-                        data = part['body'].get('data')
+                    if part.get('mimeType') == 'text/plain':
+                        body_data = part.get('body', {})
+                        data = body_data.get('data')
                         if data:
                             return base64.urlsafe_b64decode(data).decode('utf-8')
-            elif payload['mimeType'] == 'text/plain':
-                data = payload['body'].get('data')
+            elif payload.get('mimeType') == 'text/plain':
+                body_data = payload.get('body', {})
+                data = body_data.get('data')
                 if data:
                     return base64.urlsafe_b64decode(data).decode('utf-8')
             return ""
@@ -391,11 +399,12 @@ class RobustGmailService:
             attachments = []
             if 'parts' in payload:
                 for part in payload['parts']:
-                    if part['filename']:
+                    # Verificar que el part tiene filename y no es None
+                    if part.get('filename'):
                         attachments.append({
                             'filename': part['filename'],
-                            'mime_type': part['mimeType'],
-                            'size': part['body'].get('size', 0)
+                            'mime_type': part.get('mimeType', 'application/octet-stream'),
+                            'size': part.get('body', {}).get('size', 0)
                         })
             return attachments
         except Exception as e:
@@ -521,4 +530,33 @@ class RobustGmailService:
             
         except Exception as e:
             logger.error(f"Error guardando credenciales en Secret Manager: {e}")
+            return False
+    
+    def mark_as_read(self, message_id: str) -> bool:
+        """
+        Marcar un correo como leído.
+        
+        Args:
+            message_id: ID del mensaje
+            
+        Returns:
+            True si fue exitoso
+        """
+        try:
+            if not self.service:
+                logger.error("Servicio de Gmail no inicializado")
+                return False
+                
+            self.service.users().messages().modify(
+                userId='me',
+                id=message_id,
+                body={'removeLabelIds': ['UNREAD']}
+            ).execute()
+            return True
+            
+        except HttpError as error:
+            logger.error(f"Error al marcar como leído: {error}")
+            return False
+        except Exception as e:
+            logger.error(f"Error inesperado al marcar como leído: {e}")
             return False

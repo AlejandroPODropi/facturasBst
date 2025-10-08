@@ -20,10 +20,10 @@ class UserRole(str, enum.Enum):
 
 class PaymentMethod(str, enum.Enum):
     """Métodos de pago disponibles."""
-    CASH = "efectivo"
-    TARJETA_BST = "tarjeta_bst"
-    TARJETA_PERSONAL = "tarjeta_personal"
-    TRANSFER = "transferencia"
+    CASH = "CASH"  # Efectivo
+    CARD = "CARD"  # Tarjeta BST
+    CARD_PERSONAL = "CHECK"  # Tarjeta Personal (usando CHECK que no se usa)
+    TRANSFER = "TRANSFER"  # Transferencia
 
 
 class ExpenseCategory(str, enum.Enum):
@@ -65,7 +65,7 @@ class Invoice(Base):
     __tablename__ = "invoices"
     
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     date = Column(DateTime(timezone=True), nullable=False, index=True)
     provider = Column(String(255), nullable=False, index=True)
     amount = Column(Float, nullable=False)
@@ -78,8 +78,10 @@ class Invoice(Base):
     # Campos para OCR
     ocr_data = Column(JSON, nullable=True)  # Datos extraídos por OCR
     ocr_confidence = Column(Float, nullable=True)  # Nivel de confianza del OCR
+    # Campos para archivos adjuntos de Gmail
+    gmail_attachments = Column(JSON, nullable=True)  # Información de archivos adjuntos de Gmail
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relación con usuario
-    user = relationship("User", back_populates="invoices")
+    user = relationship("User", back_populates="invoices", foreign_keys=[user_id])

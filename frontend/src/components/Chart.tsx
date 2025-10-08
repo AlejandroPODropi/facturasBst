@@ -189,7 +189,10 @@ export function Chart({ title, data, type, height = 300, className = '' }: Chart
               const value = item.value || item.count || item.total_amount || 0
               const normalizedValue = range > 0 ? ((value - minValue) / range) * 80 + 10 : 50
               const x = 10 + (index / (data.length - 1)) * 80
-              return `${x},${100 - normalizedValue}`
+              // Validar que los valores no sean NaN
+              const validX = isNaN(x) ? 50 : x
+              const validY = isNaN(normalizedValue) ? 50 : (100 - normalizedValue)
+              return `${validX},${validY}`
             }).join(' ')}
           />
           
@@ -199,11 +202,15 @@ export function Chart({ title, data, type, height = 300, className = '' }: Chart
             const normalizedValue = range > 0 ? ((value - minValue) / range) * 80 + 10 : 50
             const x = 10 + (index / (data.length - 1)) * 80
             
+            // Validar que los valores no sean NaN
+            const validX = isNaN(x) ? 50 : x
+            const validY = isNaN(normalizedValue) ? 50 : (100 - normalizedValue)
+            
             return (
               <circle
                 key={index}
-                cx={x}
-                cy={100 - normalizedValue}
+                cx={validX}
+                cy={validY}
                 r="2"
                 fill="#3B82F6"
                 stroke="white"

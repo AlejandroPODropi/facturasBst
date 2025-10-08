@@ -22,6 +22,15 @@ export interface Invoice {
   updated_at?: string
   user: User
   nit?: string
+  gmail_attachments?: GmailAttachment[]
+}
+
+export interface GmailAttachment {
+  filename: string
+  mime_type: string
+  size: number
+  attachment_id: string
+  download_url: string
 }
 
 export interface CreateUserRequest {
@@ -92,10 +101,10 @@ export enum UserRole {
 }
 
 export enum PaymentMethod {
-  CASH = 'efectivo',
-  TARJETA_BST = 'tarjeta_bst',
-  TARJETA_PERSONAL = 'tarjeta_personal',
-  TRANSFER = 'transferencia'
+  CASH = 'CASH',
+  CARD = 'CARD',
+  CARD_PERSONAL = 'CHECK',  // Tarjeta Personal (usando CHECK que no se usa)
+  TRANSFER = 'TRANSFER'
 }
 
 export enum ExpenseCategory {
@@ -122,8 +131,8 @@ export const USER_ROLE_LABELS: Record<UserRole, string> = {
 
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   [PaymentMethod.CASH]: 'Efectivo',
-  [PaymentMethod.TARJETA_BST]: 'Tarjeta BST',
-  [PaymentMethod.TARJETA_PERSONAL]: 'Tarjeta Personal',
+  [PaymentMethod.CARD]: 'Tarjeta BST',
+  [PaymentMethod.CARD_PERSONAL]: 'Tarjeta Personal',
   [PaymentMethod.TRANSFER]: 'Transferencia'
 }
 
@@ -146,4 +155,82 @@ export const INVOICE_STATUS_COLORS: Record<InvoiceStatus, string> = {
   [InvoiceStatus.PENDING]: 'bg-warning-100 text-warning-800',
   [InvoiceStatus.VALIDATED]: 'bg-success-100 text-success-800',
   [InvoiceStatus.REJECTED]: 'bg-error-100 text-error-800'
+}
+
+// Tipos para análisis de facturas desde Gmail
+export interface InvoiceAnalysisResult {
+  email_id: string
+  email_subject: string
+  email_from: string
+  provider: string
+  amount: number
+  date: string
+  description?: string
+  attachments: Array<{
+    filename: string
+    mime_type: string
+    size: number
+  }>
+  suggested_user_id?: number
+  suggested_user_name?: string
+  reason_no_user?: string
+}
+
+export interface InvoiceAnalysisSummary {
+  total_emails_analyzed: number
+  invoices_found: number
+  invoices_with_user: number
+  invoices_without_user: number
+  already_uploaded: number
+}
+
+export interface InvoiceAnalysisResponse {
+  success: boolean
+  summary: InvoiceAnalysisSummary
+  invoices_to_upload: InvoiceAnalysisResult[]
+  invoices_without_user: InvoiceAnalysisResult[]
+  already_uploaded: Array<{
+    email_id: string
+    email_subject: string
+    provider: string
+    amount: number
+    date: string
+    existing_invoice_id: number
+    existing_user: string
+  }>
+  query_used: string
+  analysis_date: string
+}
+
+export interface BulkInvoiceItem {
+  email_id: string
+  email_subject: string
+  email_from: string
+  provider: string
+  amount: number
+  date: string
+  description?: string
+  user_id?: number  // Hacer opcional para facturas sin usuario
+  payment_method: PaymentMethod
+  category: ExpenseCategory
+  nit?: string
+}
+
+export interface BulkInvoiceCreate {
+  invoices: BulkInvoiceItem[]
+  skip_duplicates: boolean
+}
+
+export interface BulkInvoiceResponse {
+  success: boolean
+  total_processed: number
+  created_count: number
+  skipped_count: number
+  error_count: number
+  created_invoices: number[]
+  skipped_invoices: string[]
+  errors: Array<{
+    email_id: string
+    error: string
+  }>
 }

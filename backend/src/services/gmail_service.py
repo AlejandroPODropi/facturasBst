@@ -138,7 +138,7 @@ class GmailService:
                 'to': self._get_header_value(headers, 'To'),
                 'date': self._get_header_value(headers, 'Date'),
                 'body': self._extract_body(message['payload']),
-                'attachments': self._extract_attachments(message['payload']),
+                'attachments': self._extract_attachments(message['payload'], message_id),
                 'labels': message.get('labelIds', [])
             }
             
@@ -174,7 +174,7 @@ class GmailService:
         
         return body
     
-    def _extract_attachments(self, payload: Dict) -> List[Dict[str, Any]]:
+    def _extract_attachments(self, payload: Dict, message_id: str = None) -> List[Dict[str, Any]]:
         """Extraer información de archivos adjuntos."""
         attachments = []
         
@@ -185,7 +185,8 @@ class GmailService:
                         'filename': part['filename'],
                         'mime_type': part['mimeType'],
                         'size': part['body'].get('size', 0),
-                        'attachment_id': part['body'].get('attachmentId')
+                        'attachment_id': part['body'].get('attachmentId'),
+                        'message_id': message_id
                     }
                     attachments.append(attachment)
         
@@ -263,19 +264,66 @@ class InvoiceEmailProcessor:
         invoice_keywords = [
             'factura', 'invoice', 'recibo', 'comprobante',
             'gasto', 'expense', 'pago', 'payment',
-            'cobro', 'charge', 'servicio', 'service'
+            'cobro', 'charge', 'servicio', 'service',
+            'bill', 'billing', 'cuenta', 'account'
         ]
         
         # Verificar si hay palabras clave en el asunto o cuerpo
         has_keywords = any(keyword in subject or keyword in body for keyword in invoice_keywords)
         
-        # Verificar si hay archivos adjuntos (PDF, imágenes)
+        # Verificar patrones específicos de facturación colombiana
+        has_invoice_pattern = self._has_invoice_pattern(email_data.get('subject', ''))
+        
+        # Verificar si hay archivos adjuntos (PDF, imágenes, ZIP)
         has_attachments = any(
-            attachment['mime_type'] in ['application/pdf', 'image/jpeg', 'image/png']
+            attachment['mime_type'] in [
+                'application/pdf', 
+                'image/jpeg', 
+                'image/png',
+                'application/zip',  # Agregar soporte para archivos ZIP
+                'application/octet-stream'  # Agregar soporte para archivos binarios
+            ]
             for attachment in attachments
         )
         
-        return has_keywords and has_attachments
+        # Es factura si tiene palabras clave O patrón de factura, Y tiene adjuntos
+        return (has_keywords or has_invoice_pattern) and has_attachments
+    
+    def _has_invoice_pattern(self, subject: str) -> bool:
+        """
+        Detectar patrones específicos de facturación colombiana.
+        
+        Args:
+            subject: Asunto del correo
+            
+        Returns:
+            True si coincide con patrones de factura
+        """
+        import re
+        
+        # Patrón 1: Código;Empresa;CódigoFactura;Secuencia;Empresa
+        # Ejemplo: 901294241;PAGOS AUTOMATICOS DE COLOMBIA SAS;FVFE255128;01;PAGOS AUTOMATICOS DE COLOMBIA SAS
+        pattern1 = r'^\d{9,12};[A-Z\s\.\-]+;[A-Z0-9]{6,12};\d{2};[A-Z\s\.\-]+'
+        
+        # Patrón 2: Código numérico seguido de empresa
+        # Ejemplo: 900632938;ESTRELLA ANDINA S.A.S
+        pattern2 = r'^\d{9,12};[A-Z\s\.\-]+'
+        
+        # Patrón 3: Código alfanumérico de factura
+        # Ejemplo: FVFE255128, UNFE383160, EDA2068
+        pattern3 = r'[A-Z]{2,6}\d{6,12}'
+        
+        # Patrón 4: Formato genérico de factura
+        # Ejemplo: "Factura 12345 – Empresa", "Factura [Número] – Cliente"
+        pattern4 = r'factura\s+\d+.*–.*|invoice\s+\d+.*–.*'
+        
+        patterns = [pattern1, pattern2, pattern3, pattern4]
+        
+        for pattern in patterns:
+            if re.search(pattern, subject, re.IGNORECASE):
+                return True
+        
+        return False
     
     def extract_invoice_data(self, email_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -296,6 +344,7 @@ class InvoiceEmailProcessor:
             'email_subject': email_data.get('subject', ''),
             'email_from': email_data.get('from', ''),
             'attachments': email_data.get('attachments', []),
+            'gmail_attachments': self._format_gmail_attachments(email_data.get('attachments', [])),
             'raw_email_data': email_data
         }
         
@@ -312,7 +361,12 @@ class InvoiceEmailProcessor:
             provider = domain.split('.')[0]
             return provider.title()
         
-        # Intentar extraer del asunto
+        # Intentar extraer del asunto usando patrones específicos
+        provider = self._extract_provider_from_subject(subject)
+        if provider != "Proveedor Desconocido":
+            return provider
+        
+        # Intentar extraer del asunto (método genérico)
         if 'factura' in subject.lower():
             # Buscar patrones como "Factura de [PROVEEDOR]"
             parts = subject.split()
@@ -322,26 +376,139 @@ class InvoiceEmailProcessor:
         
         return "Proveedor Desconocido"
     
+    def _extract_provider_from_subject(self, subject: str) -> str:
+        """
+        Extraer proveedor del asunto usando patrones específicos de facturación.
+        
+        Args:
+            subject: Asunto del correo
+            
+        Returns:
+            Nombre del proveedor o "Proveedor Desconocido"
+        """
+        import re
+        
+        # Patrón 1: Código;Empresa;CódigoFactura;Secuencia;Empresa
+        # Ejemplo: 901294241;PAGOS AUTOMATICOS DE COLOMBIA SAS;FVFE255128;01;PAGOS AUTOMATICOS DE COLOMBIA SAS
+        pattern1 = r'^\d{9,12};([A-Z\s\.\-]+);[A-Z0-9]{6,12};\d{2};[A-Z\s\.\-]+'
+        match1 = re.search(pattern1, subject)
+        if match1:
+            provider = match1.group(1).strip()
+            return self._clean_provider_name(provider)
+        
+        # Patrón 2: Código numérico seguido de empresa
+        # Ejemplo: 900632938;ESTRELLA ANDINA S.A.S
+        pattern2 = r'^\d{9,12};\s*([A-Z\s\.\-]+)'
+        match2 = re.search(pattern2, subject)
+        if match2:
+            provider = match2.group(1).strip()
+            return self._clean_provider_name(provider)
+        
+        # Patrón 3: Formato genérico con guión
+        # Ejemplo: "Factura 12345 – Empresa", "Invoice 12345 – Cliente"
+        pattern3 = r'factura\s+\d+.*–\s*([^–]+)|invoice\s+\d+.*–\s*([^–]+)'
+        match3 = re.search(pattern3, subject, re.IGNORECASE)
+        if match3:
+            provider = (match3.group(1) or match3.group(2)).strip()
+            return self._clean_provider_name(provider)
+        
+        return "Proveedor Desconocido"
+    
+    def _clean_provider_name(self, provider: str) -> str:
+        """
+        Limpiar y formatear el nombre del proveedor.
+        
+        Args:
+            provider: Nombre del proveedor en bruto
+            
+        Returns:
+            Nombre del proveedor limpio y formateado
+        """
+        # Remover caracteres especiales al final
+        provider = provider.rstrip(';.,- ')
+        
+        # Convertir a formato título (primera letra de cada palabra en mayúscula)
+        provider = provider.title()
+        
+        # Manejar casos especiales de empresas colombianas
+        provider = provider.replace('S.A.S', 'S.A.S.')
+        provider = provider.replace('S.A', 'S.A.')
+        provider = provider.replace('Ltda', 'Ltda.')
+        
+        # Corregir casos donde se duplican los puntos
+        provider = provider.replace('S.A..S.', 'S.A.S.')
+        provider = provider.replace('S.A..', 'S.A.')
+        
+        # Asegurar que las siglas tengan puntos
+        if provider.endswith('SAS') and not provider.endswith('S.A.S.'):
+            provider = provider.replace('Sas', 'S.A.S.')
+        elif provider.endswith('SA') and not provider.endswith('S.A.'):
+            provider = provider.replace('Sa', 'S.A.')
+        elif provider.endswith('LTDA') and not provider.endswith('Ltda.'):
+            provider = provider.replace('Ltda', 'Ltda.')
+        
+        # Casos especiales para "S A S" (con espacios)
+        if provider.endswith('S A S') and not provider.endswith('S.A.S.'):
+            provider = provider.replace('S A S', 'S.A.S.')
+        elif provider.endswith('S A') and not provider.endswith('S.A.'):
+            provider = provider.replace('S A', 'S.A.')
+        
+        return provider
+    
     def _extract_amount(self, email_data: Dict[str, Any]) -> float:
         """Extraer monto de la factura."""
         import re
         
         text = f"{email_data.get('subject', '')} {email_data.get('body', '')}"
         
-        # Buscar patrones de monto
+        # Buscar patrones de monto más específicos para facturas colombianas
         patterns = [
-            r'\$(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)',  # $1,234.56
-            r'(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*pesos',  # 1,234.56 pesos
-            r'monto[:\s]*\$?(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)',  # monto: $1,234.56
-            r'total[:\s]*\$?(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)',  # total: $1,234.56
+            # Patrones colombianos: 1.000.000,50 o 1,000,000.50
+            r'\$(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})?)',  # $1.000.000,50 o $1,000,000.50
+            r'(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})?)\s*pesos',  # 1.000.000,50 pesos
+            r'monto[:\s]*\$?(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})?)',  # monto: $1.000.000,50
+            r'total[:\s]*\$?(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})?)',  # total: $1.000.000,50
+            r'valor[:\s]*\$?(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})?)',  # valor: $1.000.000,50
+            r'suma[:\s]*\$?(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})?)',  # suma: $1.000.000,50
+            # Patrones para números sin separadores
+            r'\$(\d+(?:[.,]\d{2})?)',  # $1000000,50
+            r'(\d+(?:[.,]\d{2})?)\s*pesos',  # 1000000,50 pesos
+            # Patrones específicos de facturas electrónicas colombianas
+            r'(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})?)\s*COP',  # 1.000.000,50 COP
+            r'(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})?)\s*colombianos',  # 1.000.000,50 colombianos
         ]
         
         for pattern in patterns:
             match = re.search(pattern, text, re.IGNORECASE)
             if match:
-                amount_str = match.group(1).replace(',', '')
+                amount_str = match.group(1)
                 try:
-                    return float(amount_str)
+                    # Manejar formato colombiano: 1.000.000,50 -> 1000000.50
+                    if ',' in amount_str and '.' in amount_str:
+                        # Formato: 1.000.000,50
+                        amount_str = amount_str.replace('.', '').replace(',', '.')
+                    elif ',' in amount_str and '.' not in amount_str:
+                        # Verificar si es separador de miles o decimales
+                        parts = amount_str.split(',')
+                        if len(parts) == 2 and len(parts[1]) <= 2:
+                            # Es decimal: 1000000,50
+                            amount_str = amount_str.replace(',', '.')
+                        else:
+                            # Es separador de miles: 1,000,000
+                            amount_str = amount_str.replace(',', '')
+                    elif '.' in amount_str and ',' not in amount_str:
+                        # Verificar si es separador de miles o decimales
+                        parts = amount_str.split('.')
+                        if len(parts) == 2 and len(parts[1]) <= 2:
+                            # Es decimal: 1000000.50
+                            pass  # Ya está en formato correcto
+                        else:
+                            # Es separador de miles: 1.000.000
+                            amount_str = amount_str.replace('.', '')
+                    
+                    amount = float(amount_str)
+                    if amount > 0:
+                        return amount
                 except ValueError:
                     continue
         
@@ -374,6 +541,22 @@ class InvoiceEmailProcessor:
             return body[:200]
         
         return "Factura recibida por email"
+    
+    def _format_gmail_attachments(self, attachments: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Formatear información de archivos adjuntos para almacenamiento."""
+        formatted_attachments = []
+        
+        for attachment in attachments:
+            formatted_attachment = {
+                'filename': attachment.get('filename', ''),
+                'mime_type': attachment.get('mime_type', ''),
+                'size': attachment.get('size', 0),
+                'attachment_id': attachment.get('attachment_id', ''),
+                'download_url': f"/api/v1/gmail/attachments/{attachment.get('message_id', '')}/{attachment.get('attachment_id', '')}"
+            }
+            formatted_attachments.append(formatted_attachment)
+        
+        return formatted_attachments
 
 
 def process_gmail_invoices(db: Session, limit: int = 10) -> List[Dict[str, Any]]:
