@@ -65,48 +65,22 @@ def getconn():
         return None
 
 # Crear engine de SQLAlchemy
-# Usar conexión directa con psycopg2 para evitar problemas con Cloud SQL connector
+# En Cloud Run, usar el socket de Cloud SQL directamente
 try:
-    if "host=/cloudsql/" in settings.database_url:
-        # Convertir URL de Cloud SQL a URL directa con psycopg2
-        import re
-        match = re.search(r'postgresql://([^:]+):([^@]+)@/([^?]+)\?host=(.+)', settings.database_url)
-        if match:
-            user, password, db_name, host = match.groups()
-            # Usar IP pública de Cloud SQL con psycopg2
-            direct_url = f"postgresql://{user}:{password}@35.232.248.130:5432/{db_name}"
-            print(f"Usando URL directa: {direct_url}")
-            engine = create_engine(
-                direct_url,
-                pool_pre_ping=True,
-                echo=settings.debug,
-                pool_recycle=3600,  # Reciclar conexiones cada hora
-                pool_timeout=30,    # Timeout de 30 segundos
-                max_overflow=10,    # Permitir hasta 10 conexiones adicionales
-                pool_size=5         # Pool base de 5 conexiones
-            )
-        else:
-            print(f"URL no coincide con patrón Cloud SQL: {settings.database_url}")
-            engine = create_engine(
-                settings.database_url,
-                pool_pre_ping=True,
-                echo=settings.debug
-            )
-    else:
-        print(f"URL no es de Cloud SQL: {settings.database_url}")
-        engine = create_engine(
-            settings.database_url,
-            pool_pre_ping=True,
-            echo=settings.debug
-        )
-except Exception as e:
-    print(f"Error creando engine: {e}")
-    # Fallback a conexión directa
+    print(f"DATABASE_URL: {settings.database_url}")
     engine = create_engine(
         settings.database_url,
         pool_pre_ping=True,
-        echo=settings.debug
+        echo=settings.debug,
+        pool_recycle=3600,  # Reciclar conexiones cada hora
+        pool_timeout=30,    # Timeout de 30 segundos
+        max_overflow=10,    # Permitir hasta 10 conexiones adicionales
+        pool_size=5         # Pool base de 5 conexiones
     )
+    print("Engine creado exitosamente")
+except Exception as e:
+    print(f"Error creando engine: {e}")
+    raise
 
 # Crear sesión de base de datos
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
