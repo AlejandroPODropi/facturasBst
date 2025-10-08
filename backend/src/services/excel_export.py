@@ -56,7 +56,7 @@ def export_invoices_to_excel(invoices: List[Invoice]) -> str:
     # Escribir datos
     for row, invoice in enumerate(invoices, 2):
         ws.cell(row=row, column=1, value=invoice.id).border = border
-        ws.cell(row=row, column=2, value=invoice.user.name).border = border
+        ws.cell(row=row, column=2, value=invoice.user.name if invoice.user else "Sin asignar").border = border
         ws.cell(row=row, column=3, value=invoice.date.strftime("%Y-%m-%d")).border = border
         ws.cell(row=row, column=4, value=invoice.provider).border = border
         ws.cell(row=row, column=5, value=f"${invoice.amount:,.2f}").border = border
