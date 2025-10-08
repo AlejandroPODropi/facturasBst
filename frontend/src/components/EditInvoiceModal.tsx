@@ -169,9 +169,9 @@ export function EditInvoiceModal({ invoice, isOpen, onClose }: EditInvoiceModalP
                     required
                     className="input mt-1"
                   >
-                    {Object.entries(PAYMENT_METHOD_LABELS).map(([key, label]) => (
-                      <option key={key} value={PaymentMethod[key as keyof typeof PaymentMethod]}>
-                        {label}
+                    {Object.values(PaymentMethod).map((method) => (
+                      <option key={method} value={method}>
+                        {PAYMENT_METHOD_LABELS[method as PaymentMethod]}
                       </option>
                     ))}
                   </select>
@@ -189,9 +189,9 @@ export function EditInvoiceModal({ invoice, isOpen, onClose }: EditInvoiceModalP
                     required
                     className="input mt-1"
                   >
-                    {Object.entries(EXPENSE_CATEGORY_LABELS).map(([key, label]) => (
-                      <option key={key} value={ExpenseCategory[key as keyof typeof ExpenseCategory]}>
-                        {label}
+                    {Object.values(ExpenseCategory).map((category) => (
+                      <option key={category} value={category}>
+                        {EXPENSE_CATEGORY_LABELS[category as ExpenseCategory]}
                       </option>
                     ))}
                   </select>
