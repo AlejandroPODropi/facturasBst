@@ -50,6 +50,114 @@
 
 ---
 
+## 📌 Fase 2.9 – Corrección de Errores Críticos y Optimización ✅ (Completada - Octubre 8, 2025)
+
+### **Contexto**
+Después del despliegue en producción, se identificaron múltiples errores críticos que impedían el funcionamiento del sistema. Esta fase se enfocó en diagnosticar y resolver todos los problemas para lograr un sistema 100% operativo.
+
+### **Problemas Identificados y Resueltos**
+
+#### **1. Pool de Conexiones SQLAlchemy Agotado** ✅
+- **Problema**: Error `QueuePool limit of size 1 overflow 0 reached`
+- **Causa**: Configuración muy restrictiva del pool de conexiones
+- **Solución**: 
+  - Aumentar `pool_size` de 1 a 5
+  - Aumentar `max_overflow` de 0 a 10
+  - Total: 15 conexiones concurrentes disponibles
+- **Deploy**: `backend-00091-2zg`
+
+#### **2. Error 422 en Edición de Facturas (user_id)** ✅
+- **Problema**: No se podía reasignar usuario a una factura
+- **Causa**: Schema `InvoiceUpdate` no incluía campo `user_id`
+- **Solución**:
+  - Agregar `user_id: Optional[int]` al schema
+  - Agregar validación de existencia de usuario en el endpoint
+  - Actualizar frontend para enviar `user_id` correctamente
+- **Deploy**: `backend-00091-2zg`, `frontend-00054-5n8`
+
+#### **3. Error 422 en OCR (Valores Vacíos)** ✅
+- **Problema**: OCR fallaba al crear facturas
+- **Causa**: `payment_method` y `category` inicializados como strings vacíos
+- **Solución**: Inicializar con valores por defecto válidos del enum
+  - `payment_method: PaymentMethod.CASH`
+  - `category: ExpenseCategory.OTHER`
+- **Deploy**: `frontend-00054-5n8`
+
+#### **4. Error 422 en OCR (Valores de Enum Incorrectos)** ✅
+- **Problema**: Backend rechazaba valores como "Transporte" en lugar de "transporte"
+- **Causa**: Selects usaban `Object.entries(LABELS)` incorrectamente
+- **Solución**: Cambiar a `Object.values(Enum)` para usar valores correctos
+- **Archivos corregidos**:
+  - `OCRProcessor.tsx`
+  - `EditInvoiceModal.tsx`
+  - `CreateInvoice.tsx`
+  - `InvoiceUserAssignment.tsx`
+- **Deploy**: `frontend-00056-gl5`, `frontend-00057-pjs`
+
+#### **5. Error 500 en Exportación Excel** ✅
+- **Problema**: Crash al exportar facturas sin usuario asignado
+- **Causa**: `invoice.user.name` sin validar si `user` es `None`
+- **Solución**: Agregar validación `invoice.user.name if invoice.user else "Sin asignar"`
+- **Deploy**: `backend-00092-rbj`
+
+#### **6. Error en Procesamiento Gmail (PaymentMethod undefined)** ✅
+- **Problema**: `ReferenceError: PaymentMethod is not defined`
+- **Causa**: Enums importados como `type` en lugar de valores
+- **Solución**: Cambiar imports de `import type { PaymentMethod }` a `import { PaymentMethod }`
+- **Deploy**: `frontend-00058-fjk`
+
+#### **7. Error 500 Conexión DB (Lógica IP Pública)** ✅
+- **Problema**: Backend intentaba conectar por IP pública en lugar de socket
+- **Causa**: Código convertía URL de Cloud SQL a IP hardcodeada
+- **Solución**: Eliminar lógica de conversión, usar `DATABASE_URL` directamente con socket
+- **Deploy**: `backend-00093-vhr`
+
+#### **8. Error 500 Credenciales DB (CRÍTICO)** ✅
+- **Problema**: `password authentication failed`, `database does not exist`
+- **Causa**: Credenciales incorrectas en `DATABASE_URL`
+  - Usuario incorrecto: `facturas_user` → correcto: `boosting_user`
+  - Base de datos incorrecta: `facturas_db` → correcta: `facturas_boosting`
+- **Solución**:
+  - Identificar credenciales correctas con `gcloud sql`
+  - Resetear contraseña de usuario
+  - Actualizar `DATABASE_URL` completo
+- **Deploy**: `backend-00096-fz9`
+
+### **Configuración Final Correcta**
+
+#### **Backend (Cloud Run)**
+```bash
+DATABASE_URL=postgresql://boosting_user:Boosting2024!@/facturas_boosting?host=/cloudsql/facturasbst:us-central1:facturas-db
+--add-cloudsql-instances=facturasbst:us-central1:facturas-db
+pool_size=5
+max_overflow=10
+```
+
+#### **Frontend (Cloud Run)**
+```bash
+VITE_API_URL=https://backend-493189429371.us-central1.run.app/api/v1
+```
+
+### **Resultado Final**
+- ✅ Sistema 100% operativo en producción
+- ✅ Todas las funcionalidades probadas y funcionando
+- ✅ Pool de conexiones optimizado
+- ✅ Validaciones correctas en todos los formularios
+- ✅ Exportación Excel funcionando con facturas sin usuario
+- ✅ Procesamiento OCR y Gmail operativos
+- ✅ Conexión estable a Cloud SQL
+
+### **Deploys Realizados**
+- Backend: `00091-2zg`, `00092-rbj`, `00093-vhr`, `00094-76r`, `00095-4k2`, `00096-fz9`
+- Frontend: `00054-5n8`, `00055-7p7`, `00056-gl5`, `00057-pjs`, `00058-fjk`
+
+### **Commits en GitHub**
+- 9 commits con documentación detallada de cada fix
+- Todos los cambios pusheados a `main`
+- Historial completo de resolución de problemas
+
+---
+
 ## 📌 Fase 2.6 – Resolución de Problemas (Completada ✅)
 - ✅ Corrección de endpoint `/bulk-create` (conflicto de rutas)
 - ✅ Actualización de esquemas Pydantic para `user_id` nulo
